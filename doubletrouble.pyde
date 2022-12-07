@@ -1,8 +1,12 @@
+from maze import Maze
+
+mz = Maze(5,5)
+
 def setup():
-    size(400, 400)
-    background(200, 100, 150)
+    size(500, 500)
+    background(255)
     noStroke()
+    fill(0)
 
 def draw():
-    fill(0, 200, 50)
-    circle(200, 200, 100)
+    mz.display()
