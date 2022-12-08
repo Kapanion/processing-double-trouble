@@ -1,6 +1,6 @@
 import random
 
-DCS = 16
+DCS = 16      # desired component size
 WALL_SZ = 6
 CELL_SZ = 50
 
