@@ -1,3 +1,4 @@
+DEBUG = False
 
 # Can also be used for storing a point
 class Vec2:
@@ -6,16 +7,16 @@ class Vec2:
         self.y = y
         
     def __neg__(self):
-        return Vector(-self.x, -self.y)
+        return Vec2(-self.x, -self.y)
     
     def __add__(self, other):
-        return Vector(self.x + other.x, self.y + other.y)
+        return Vec2(self.x + other.x, self.y + other.y)
     
     def __sub__(self, other):
-        return Vector(self.x - other.x, self.y - other.y)
+        return Vec2(self.x - other.x, self.y - other.y)
     
     def __mul__(self, other):
-        return Vector(self.x * other, self.y * other)
+        return Vec2(self.x * other, self.y * other)
     
     __rmul__ = __mul__
     
@@ -50,17 +51,121 @@ class Vec2:
 
 
 class RectCollider:
-    def __init__(self, center_x, center_y, half_w, half_h, rotation):
+    def __init__(self, center_x, center_y, half_w, half_h, rotation = 0):
         self.center_x = center_x
         self.center_y = center_y
         self.half_w = half_w
         self.half_h = half_h
         self.rotation = rotation
+        self.recalculate_points()
 
 
     def recalculate_points(self):
         self.points = []
-        self.points.append(Vec2(center_x + half_w, center_y + half_h))
-        self.points.append(Vec2(center_x - half_w, center_y + half_h))
-        self.points.append(Vec2(center_x + half_w, center_y - half_h))
-        self.points.append(Vec2(center_x - half_w, center_y - half_h))
+        self.points.append(Vec2(self.center_x + self.half_w, self.center_y + self.half_h))
+        self.points.append(Vec2(self.center_x - self.half_w, self.center_y + self.half_h))
+        self.points.append(Vec2(self.center_x - self.half_w, self.center_y - self.half_h))
+        self.points.append(Vec2(self.center_x + self.half_w, self.center_y - self.half_h))
+
+
+    def check_collision(self, other):
+        self.recalculate_points()
+        other.recalculate_points()
+        col, mpv = check_collision(self.points, other.points)
+        if col:
+            self.center_x += mpv.x
+            self.center_y += mpv.y
+            print(mpv)
+        return col
+
+    def display_debug(self):
+        noFill()
+        stroke(0, 255, 0)
+        rect(self.center_x-self.half_w, self.center_y - self.half_h, self.half_w*2, self.half_h*2)
+
+
+def edges_of(poly):
+    edges = []
+    n = len(poly)
+    for i in range(n):
+        edges.append(poly[(i+1)%n] - poly[i])
+
+    return edges
+
+
+def orthogonal(v):
+    return Vec2(-v.y, v.x)
+
+
+def centers_displacement(poly1, poly2):
+    c1 = sum(poly1, Vec2(0.0, 0.0)) / float(len(poly1))
+    c2 = sum(poly2, Vec2(0.0, 0.0)) / float(len(poly2))
+    # print("{}   {}".format(sum(poly1, Vec2(0.0, 0.0)), sum(poly2, Vec2(0.0, 0.0))))
+    return c2 - c1
+
+
+def separating_axis(ortho, poly1, poly2):
+    min1, max1 = float('+inf'), float('-inf')
+    min2, max2 = float('+inf'), float('-inf')
+
+    if DEBUG: print("Checking axis {}".format(ortho))
+    for v in poly1:
+        projection_magnitude = v.dot(ortho)
+        if DEBUG:
+            print("Poly1: point {}, proj {}".format(v, projection_magnitude))
+
+        min1 = min(min1, projection_magnitude)
+        max1 = max(max1, projection_magnitude)
+
+    for v in poly2:
+        projection_magnitude = v.dot(ortho)
+        if DEBUG:
+            print("Poly2: point {}, proj {}".format(v, projection_magnitude))
+
+        min2 = min(min2, projection_magnitude)
+        max2 = max(max2, projection_magnitude)
+
+    if max1 < min2 or max2 < min1:
+        # no overlap
+        return True, None
+
+    if DEBUG:
+        print("{}: {} {} {} {}".format(frameCount, min1, max1, min2, max2))
+
+    d = min(max1 - min2, max2 - min1)
+    sqr_mag = ortho.sqr_magnitude()
+    pv = ortho * (d / sqr_mag + 1e-10)
+    return False, pv
+
+
+def check_collision(poly1, poly2):
+    # poly1 = [np.array(v, 'float64') for v in poly1]
+    # poly2 = [np.array(v, 'float64') for v in poly2]
+    poly1 = list(map(lambda v: Vec2(float(v.x), float(v.y)), poly1))
+    poly2 = list(map(lambda v: Vec2(float(v.x), float(v.y)), poly2))
+
+    edges = edges_of(poly1) + edges_of(poly2)
+    orthos = map(orthogonal, edges)
+
+    push_vectors = []
+    for ortho in orthos:
+        sep, pv = separating_axis(ortho, poly1, poly2)
+
+        if sep:
+            return False, None
+
+        # print(str(frameCount) + str(pv))
+
+        push_vectors.append(pv)
+
+    if DEBUG:
+        print("{}: rect1: {}".format(frameCount, ",".join(map(str, poly1))))
+        print("{}: rect2: {}".format(frameCount, ",".join(map(str, poly2))))
+
+    mpv = min(push_vectors, key=(lambda v: v.sqr_magnitude()))
+    
+    d = centers_displacement(poly1, poly2) # direction from p1 to p2
+    if d.dot(mpv) > 0: # if it's the same direction, then invert
+        mpv = -mpv
+
+    return True, mpv

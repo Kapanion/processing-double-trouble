@@ -50,7 +50,7 @@ class Maze:
                         or rem_c == self.cols-1 and rem_d == 1:
                     continue
                 break
-            print(rem_r, rem_c, rem_d)
+            # print(rem_r, rem_c, rem_d)
             self.maze[rem_r][rem_c][rem_d] = False
             nr = rem_r + dirs[rem_d][0]
             nc = rem_c + dirs[rem_d][1]
@@ -81,6 +81,6 @@ class Maze:
 
 
 
-maze = Maze(5, 5)
-print(maze)
-print(maze.maze)
+# maze = Maze(5, 5)
+# print(maze)
+# print(maze.maze)
