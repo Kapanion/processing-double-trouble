@@ -1,15 +1,26 @@
 import random
+from collision import RectCollider
 
 DCS = 16      # desired component size
 WALL_SZ = 6
-CELL_SZ = 50
+CELL_SZ = 100
 
 dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+class Wall(RectCollider):
+    def __init__(self, x, y, w, h):
+        RectCollider.__init__(self, x + w/2.0, y + h/2.0, w/2.0, h/2.0)
+
+
+    def display(self):
+        rect(self.c.x - self.hs.x, self.c.y - self.hs.y, self.hs.x * 2, self.hs.y * 2)
+
 
 class Maze:
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
+        self.walls = []
         self.generate_maze()
 
 
@@ -31,6 +42,22 @@ class Maze:
                 if self.maze[nr][nc][i%2]:
                     continue
             self.change_component(nr, nc, comp)
+
+
+    def update_walls(self):        
+        wall = Wall(0, 0, WALL_SZ, self.cols * CELL_SZ)
+        self.walls.append(wall)
+        wall = Wall(0, 0, self.rows * CELL_SZ, WALL_SZ)
+        self.walls.append(wall)
+
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if self.maze[r][c][0]:
+                    wall = Wall((r+1)*CELL_SZ, c*CELL_SZ, WALL_SZ, CELL_SZ + WALL_SZ)
+                    self.walls.append(wall)
+                if self.maze[r][c][1]:
+                    wall = Wall(r*CELL_SZ, (c+1)*CELL_SZ, CELL_SZ + WALL_SZ, WALL_SZ)
+                    self.walls.append(wall)
 
 
     def generate_maze(self):
@@ -58,16 +85,13 @@ class Maze:
             if self.component_size[self.cell_component[rem_r][rem_c]] > DCS:
                 break
 
+        self.update_walls()
+
 
     def display(self):
-        rect(0, 0, WALL_SZ, self.cols * CELL_SZ)
-        rect(0, 0, self.rows * CELL_SZ, WALL_SZ)
-        for r in range(self.rows):
-            for c in range(self.cols):
-                if self.maze[r][c][0]:
-                    rect((r+1)*CELL_SZ, c*CELL_SZ, WALL_SZ, CELL_SZ)
-                if self.maze[r][c][1]:
-                    rect(r*CELL_SZ, (c+1)*CELL_SZ, CELL_SZ, WALL_SZ)
+        fill(0)
+        for wall in self.walls:
+            wall.display()
 
 
     def __str__(self):

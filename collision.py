@@ -67,11 +67,12 @@ class RectCollider:
 
 
     def recalculate_points(self):
-        self.points = []
-        self.points.append(Vec2(self.c.x + self.hs.x, self.c.y + self.hs.y))
-        self.points.append(Vec2(self.c.x - self.hs.x, self.c.y + self.hs.y))
-        self.points.append(Vec2(self.c.x - self.hs.x, self.c.y - self.hs.y))
-        self.points.append(Vec2(self.c.x + self.hs.x, self.c.y - self.hs.y))
+        self.points = [
+            Vec2(self.c.x + self.hs.x, self.c.y + self.hs.y),
+            Vec2(self.c.x - self.hs.x, self.c.y + self.hs.y),
+            Vec2(self.c.x - self.hs.x, self.c.y - self.hs.y),
+            Vec2(self.c.x + self.hs.x, self.c.y - self.hs.y),
+        ]
         self.points = list(map(lambda v: v.rotate(self.c, self.rot), self.points))
 
 
