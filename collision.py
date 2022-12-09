@@ -49,23 +49,30 @@ class Vec2:
     def distance(self, other):
         return self.sqr_distance(other) ** 0.5
 
+    # rotate a point
+    def rotate(self, origin, angle):
+        v = self - origin
+        rotated = Vec2(v.x * cos(angle) - v.y * sin(angle), v.x * sin(angle) + v.y * cos(angle))
+        return rotated + origin
+
 
 class RectCollider:
     def __init__(self, center_x, center_y, half_w, half_h, rotation = 0):
-        self.center_x = center_x
-        self.center_y = center_y
-        self.half_w = half_w
-        self.half_h = half_h
-        self.rotation = rotation
+        # center
+        self.c = Vec2(center_x, center_y)
+        # half size
+        self.hs = Vec2(half_w, half_h)
+        self.rot = rotation
         self.recalculate_points()
 
 
     def recalculate_points(self):
         self.points = []
-        self.points.append(Vec2(self.center_x + self.half_w, self.center_y + self.half_h))
-        self.points.append(Vec2(self.center_x - self.half_w, self.center_y + self.half_h))
-        self.points.append(Vec2(self.center_x - self.half_w, self.center_y - self.half_h))
-        self.points.append(Vec2(self.center_x + self.half_w, self.center_y - self.half_h))
+        self.points.append(Vec2(self.c.x + self.hs.x, self.c.y + self.hs.y))
+        self.points.append(Vec2(self.c.x - self.hs.x, self.c.y + self.hs.y))
+        self.points.append(Vec2(self.c.x - self.hs.x, self.c.y - self.hs.y))
+        self.points.append(Vec2(self.c.x + self.hs.x, self.c.y - self.hs.y))
+        self.points = list(map(lambda v: v.rotate(self.c, self.rot), self.points))
 
 
     def check_collision(self, other):
@@ -73,15 +80,18 @@ class RectCollider:
         other.recalculate_points()
         col, mpv = check_collision(self.points, other.points)
         if col:
-            self.center_x += mpv.x
-            self.center_y += mpv.y
-            print(mpv)
+            self.c += mpv
         return col
 
     def display_debug(self):
         noFill()
         stroke(0, 255, 0)
-        rect(self.center_x-self.half_w, self.center_y - self.half_h, self.half_w*2, self.half_h*2)
+        self.recalculate_points()
+        n = len(self.points)
+        for i in range(n):
+            u = self.points[i]
+            v = self.points[(i+1)%n]
+            line(u.x, u.y, v.x, v.y)
 
 
 def edges_of(poly):
@@ -100,7 +110,6 @@ def orthogonal(v):
 def centers_displacement(poly1, poly2):
     c1 = sum(poly1, Vec2(0.0, 0.0)) / float(len(poly1))
     c2 = sum(poly2, Vec2(0.0, 0.0)) / float(len(poly2))
-    # print("{}   {}".format(sum(poly1, Vec2(0.0, 0.0)), sum(poly2, Vec2(0.0, 0.0))))
     return c2 - c1
 
 
@@ -153,8 +162,6 @@ def check_collision(poly1, poly2):
 
         if sep:
             return False, None
-
-        # print(str(frameCount) + str(pv))
 
         push_vectors.append(pv)
 

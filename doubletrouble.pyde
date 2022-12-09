@@ -14,8 +14,10 @@ def setup():
 def draw():
     background(255)
     # mz.display()
-    rect1.center_x = mouseX
-    rect1.center_y = mouseY
+    rect1.c = cl.Vec2(mouseX, mouseY)
+    
+    if mousePressed:
+        rect1.rot += 0.03
     
     col = rect1.check_collision(rect2)
     # print(col)
