@@ -1,4 +1,4 @@
-DEBUG = False
+DEBUG_PRINT = False
 
 # Can also be used for storing a point
 class Vec2:
@@ -21,7 +21,7 @@ class Vec2:
     __rmul__ = __mul__
     
     def __div__(self, other):
-        return self * (1/other)
+        return Vec2(self.x / other, self.y / other)
     
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -31,7 +31,17 @@ class Vec2:
     
     def __str__(self):
         return "({},{})".format(self.x, self.y)
-    
+
+
+
+    def to_float(self):
+        return Vec2(float(self.x), float(self.y))
+
+    def to_int(self):
+        return Vec2(int(self.x), int(self.y))
+
+    def as_tuple(self):
+        return (self.x, self.y)
     
     def dot(self, other):
         return self.x * other.x + self.y * other.y
@@ -49,7 +59,7 @@ class Vec2:
     def distance(self, other):
         return self.sqr_distance(other) ** 0.5
 
-    # rotate a point
+    # rotate a point in relation to another point
     def rotate(self, origin, angle):
         v = self - origin
         rotated = Vec2(v.x * cos(angle) - v.y * sin(angle), v.x * sin(angle) + v.y * cos(angle))
@@ -80,6 +90,8 @@ class RectCollider:
 
 
     def check_collision(self, other):
+        if self.type == RectCollider.TYPE_STATIC:
+            raise Exception("Collision cannot be checked on a static object.")
         self.recalculate_points()
         other.recalculate_points()
         col, mpv = check_collision(self.points, other.points)
@@ -93,9 +105,9 @@ class RectCollider:
         return col
 
 
-    def display_debug(self):
+    def display_debug(self, clr = color(0, 255, 0) ):
         noFill()
-        stroke(0, 255, 0)
+        stroke(clr)
         self.recalculate_points()
         n = len(self.points)
         for i in range(n):
@@ -129,10 +141,10 @@ def separating_axis(ortho, poly1, poly2):
     min1, max1 = float('+inf'), float('-inf')
     min2, max2 = float('+inf'), float('-inf')
 
-    if DEBUG: print("Checking axis {}".format(ortho))
+    if DEBUG_PRINT: print("Checking axis {}".format(ortho))
     for v in poly1:
         projection_magnitude = v.dot(ortho)
-        if DEBUG:
+        if DEBUG_PRINT:
             print("Poly1: point {}, proj {}".format(v, projection_magnitude))
 
         min1 = min(min1, projection_magnitude)
@@ -140,7 +152,7 @@ def separating_axis(ortho, poly1, poly2):
 
     for v in poly2:
         projection_magnitude = v.dot(ortho)
-        if DEBUG:
+        if DEBUG_PRINT:
             print("Poly2: point {}, proj {}".format(v, projection_magnitude))
 
         min2 = min(min2, projection_magnitude)
@@ -150,7 +162,7 @@ def separating_axis(ortho, poly1, poly2):
         # no overlap
         return True, None
 
-    if DEBUG:
+    if DEBUG_PRINT:
         print("{}: {} {} {} {}".format(frameCount, min1, max1, min2, max2))
 
     d = min(max1 - min2, max2 - min1)
@@ -177,7 +189,7 @@ def check_collision(poly1, poly2):
 
         push_vectors.append(pv)
 
-    if DEBUG:
+    if DEBUG_PRINT:
         print("{}: rect1: {}".format(frameCount, ",".join(map(str, poly1))))
         print("{}: rect2: {}".format(frameCount, ",".join(map(str, poly2))))
 
