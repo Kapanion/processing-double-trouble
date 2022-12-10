@@ -57,13 +57,16 @@ class Vec2:
 
 
 class RectCollider:
-    def __init__(self, center_x, center_y, half_w, half_h, rotation = 0):
+    TYPE_STATIC = 0
+    TYPE_DYNAMIC = 1
+    def __init__(self, center_x, center_y, half_w, half_h, rotation = 0, tp = TYPE_STATIC):
         # center
         self.c = Vec2(center_x, center_y)
         # half size
         self.hs = Vec2(half_w, half_h)
         self.rot = rotation
         self.recalculate_points()
+        self.type = tp
 
 
     def recalculate_points(self):
@@ -81,8 +84,14 @@ class RectCollider:
         other.recalculate_points()
         col, mpv = check_collision(self.points, other.points)
         if col:
-            self.c += mpv
+            if other.type == RectCollider.TYPE_STATIC:
+                self.c += mpv
+            else:
+                self.c += 0.5 * mpv
+                other.c -= 0.5 * mpv
+                
         return col
+
 
     def display_debug(self):
         noFill()
@@ -94,6 +103,8 @@ class RectCollider:
             v = self.points[(i+1)%n]
             line(u.x, u.y, v.x, v.y)
 
+
+### Convex polygon collision/intersection
 
 def edges_of(poly):
     edges = []

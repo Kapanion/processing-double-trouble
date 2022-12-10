@@ -5,7 +5,7 @@ TANK_ROT_SPEED = 0.06
 
 class Tank(RectCollider):
     def __init__(self, plr_id, input_handler, x, y, w, h):
-        RectCollider.__init__(self, x + w/2.0, y + h/2.0, w/2.0, h/2.0)
+        RectCollider.__init__(self, x + w/2.0, y + h/2.0, w/2.0, h/2.0, 0, RectCollider.TYPE_DYNAMIC)
         self.input_handler = input_handler
         self.plr_id = plr_id
 
