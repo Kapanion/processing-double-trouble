@@ -1,8 +1,21 @@
 ## Todo
+- [x] Maze generation.
+- [x] Rectangle collision detection.
+- [x] Tank movement.
+- [ ] Tank hull.
+- [ ] Turret.
+- [ ] Sphere collision detection.
+- [ ] Bullet.
+- [ ] Shootig bullets.
+- [ ] Tanks destroying each other.
+
+## Bugs
 - [x] Optimize checking for collisions with the maze.
 - [x] Fix weird behavior when the tanks collide (one tank has priority).
-- [ ] Wall's collider is displayed even though the `display_debug` method is not called.
+- [x] Wall's collider is displayed even though the `display_debug` method is not called. _Fix: the walls were just being drawn with stroke on._
 - [ ] In the `Maze` class, rows and columns should be inverted.
+- [ ] Tanks should spawn in the biggest connected component.
 
-### Do these if there's enough time:
-- [ ] If one tank pushes another one to a wall, the other tank will slightly overlap with the wall. Fix this.
+### Fix these if there's enough time:
+- [ ] If one tank pushes another one to a wall, the other tank will slightly overlap with the wall.
+- [ ] Adjust tank's rotation when it pushes against the wall.

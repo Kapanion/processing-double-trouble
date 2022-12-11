@@ -28,6 +28,15 @@ class Vec2:
     
     def __ne__(self, other):
         return not (self == other)
+
+    def __getitem__(self, key):
+        if key == 0:
+            return self.x
+        elif key == 1:
+            return self.y
+        else:
+            raise IndexError("not valid index key '{}'".format(key))
+
     
     def __str__(self):
         return "({},{})".format(self.x, self.y)

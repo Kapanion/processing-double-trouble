@@ -9,15 +9,15 @@ dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 class Wall(RectCollider):
     def __init__(self, x, y, w, h):
-        self.debug_color = color(0,255,0)
         RectCollider.__init__(self, x + w/2.0, y + h/2.0, w/2.0, h/2.0)
+        self.debug_color = color(0,255,0)
 
 
     def display(self):
-        # background(255)
         fill(0)
+        noStroke()
         rect(self.c.x - self.hs.x, self.c.y - self.hs.y, self.hs.x * 2, self.hs.y * 2)
-        self.display_debug(self.debug_color)
+        # self.display_debug(self.debug_color)
         self.debug_color = color(0,255,0)
 
 
@@ -68,20 +68,20 @@ class Maze:
             self.cell_walls[0][c].append(wall_left)
 
         wall_top = Wall(0, 0, self.rows * CELL_SZ, WALL_SZ)
+        self.walls.append(wall_top)
         for r in range(self.rows):
             self.cell_walls[r][0].append(wall_top)
-        self.walls.append(wall_top)
 
         for r in range(self.rows):
             for c in range(self.cols):
                 if self.maze[r][c][0]:
                     wall_down = Wall((r+1)*CELL_SZ, c*CELL_SZ, WALL_SZ, CELL_SZ + WALL_SZ)
-                    self.add_to_cell_walls(wall_down, r, c, 0, 1)
                     self.walls.append(wall_down)
+                    self.add_to_cell_walls(wall_down, r, c, 0, 1)
                 if self.maze[r][c][1]:
                     wall_right = Wall(r*CELL_SZ, (c+1)*CELL_SZ, CELL_SZ + WALL_SZ, WALL_SZ)
-                    self.add_to_cell_walls(wall_right, r, c, 1, 0)
                     self.walls.append(wall_right)
+                    self.add_to_cell_walls(wall_right, r, c, 1, 0)
 
 
     def generate_maze(self):

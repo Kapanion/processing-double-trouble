@@ -1,5 +1,6 @@
 from maze import Maze
 import collision as cl
+import gameplay
 from gameplay import Tank
 from input import InputHandler
 
@@ -14,52 +15,33 @@ input_map = {
     "d": RIGHT,
 }
              
-
-mz = Maze(5,5)
-input = InputHandler()
-tank1 = Tank(0, input, 250, 250, 30, 40)
-tank2 = Tank(1, input, 350, 250, 30, 40)
-
 def setup():
+    global tank1, tank2, input, mz
     size(505, 505)
-    background(255)
-    noStroke()
-    fill(0)
+    print(loadImage("./images/Track_1_A.png"))
+    mz = Maze(5,5)
+    input = InputHandler()
+    tank1 = Tank(0, input, 250, 250, 30, 40)
+    tank2 = Tank(1, input, 350, 250, 30, 40)
 
 def draw():
+    global tank1, tank2, input, mz
+    # print("-------------- FRAME {} -----------------".format(frameCount))
     background(255)
-
 
     tank1.update()
     tank2.update()
-    ### Maze check
-    mz.display()
     
-    ### Collision check
-    col1 = mz.check_collision(tank1)
-    col2 = mz.check_collision(tank2)
-
+    # ### Collision check
+    mz.check_collision(tank1)
+    mz.check_collision(tank2)
     tank1.check_collision(tank2)
-        # col1 = False
-        # col2 = False
-            
-        
-    if col1:
-        fill(255,0,0)
-    else:
-        fill(0,255,0)
-    noStroke()
-    circle(30, 30, 30)
-
-    if col2:
-        fill(255,0,0)
-    else:
-        fill(0,255,0)
-    noStroke()
-    circle(63, 30, 30)
     
-    tank1.display_debug()
-    tank2.display_debug()
+    mz.display()    
+    tank1.display()
+    tank2.display()
+    # tank1.display_debug()
+    # tank2.display_debug()
     
 
 def keyPressed():
