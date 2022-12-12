@@ -1,7 +1,7 @@
 import random
 from collision import RectCollider, Vec2
 
-DCS = 16      # desired component size
+# DCS = 4      # desired component size
 WALL_SZ = 6
 CELL_SZ = 100
 
@@ -25,6 +25,7 @@ class Maze:
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
+        self.desired_component_size = int(rows * cols * 0.7 + 2)
         self.walls = []
         # For each cell, corresponding walls will be stored
         # (walls that should be checked for collision) 
@@ -33,7 +34,7 @@ class Maze:
 
 
     def change_component(self, r, c, comp):
-        if r >= self.rows or c > self.cols:
+        if r >= self.rows or c >= self.cols:
             return 0
         if self.cell_component[r][c] == comp:
             return 0
@@ -89,7 +90,6 @@ class Maze:
         self.cell_component = [[i*self.cols + j for j in range(self.cols)] for i in range(self.rows)]
         self.component_size = [1 for _ in range(self.cols*self.rows)]
         while True:
-        # for _ in range(DCS):
             rem_r, rem_c, rem_d = 0,0,0
             while True:
                 rem_r = random.randint(0, self.rows-1)
@@ -106,10 +106,27 @@ class Maze:
             nr = rem_r + dirs[rem_d][0]
             nc = rem_c + dirs[rem_d][1]
             self.change_component(nr, nc, self.cell_component[rem_r][rem_c])
-            if self.component_size[self.cell_component[rem_r][rem_c]] > DCS:
+            if self.component_size[self.cell_component[rem_r][rem_c]] >= self.desired_component_size:
+                self.biggest_component = self.cell_component[rem_r][rem_c]
                 break
 
         self.update_walls()
+
+
+
+
+
+    def rand_pos_in_biggest_component(self, n = 1):
+        coords = []
+        while len(coords) < n:
+            r = random.randint(0, self.rows-1)
+            c = random.randint(0, self.cols-1)
+            if self.cell_component[r][c] == self.biggest_component:
+                if Vec2(r, c) not in coords:
+                    coords.append(Vec2(r, c))
+        
+        return map(lambda v: (v + Vec2()*0.5) * CELL_SZ + Vec2()*0.5 * WALL_SZ, coords)
+
 
 
     def check_collision(self, target):

@@ -1,5 +1,9 @@
 from collision import RectCollider, Vec2
 from animation import Animation, StateMachine, Animator
+from maze import Maze
+from input import InputHandler
+
+import random
 
 TANK_SPEED = 2
 TANK_ROT_SPEED = 0.06
@@ -7,8 +11,9 @@ TANK_ROT_SPEED = 0.06
 
 
 class Tank(RectCollider):
-    def __init__(self, plr_id, input_handler, x, y, w, h):
-        RectCollider.__init__(self, x + w/2.0, y + h/2.0, w/2.0, h/2.0, 0, RectCollider.TYPE_DYNAMIC)
+    def __init__(self, plr_id, input_handler, center, half_size):
+        rot = random.uniform(0, 2*PI)
+        RectCollider.__init__(self, center.x, center.y, half_size.x, half_size.y, rot, RectCollider.TYPE_DYNAMIC)
         self.input_handler = input_handler
         self.img = None
         self.plr_id = plr_id
@@ -64,3 +69,31 @@ class Tank(RectCollider):
             #     image(track, x-3, y-3, self.hs.x/2.0, self.hs.y*2 + 6)
             # self.animator.display(Vec2(x+50, y+50))
             # rect(x, y, *(self.hs*2).as_tuple())
+
+
+class Game:
+    def __init__(self, num_plr = 2):
+        self.maze = Maze(5,5)
+        self.input = InputHandler()
+        self.tanks = []
+        pos = self.maze.rand_pos_in_biggest_component(num_plr)
+        for i in range(num_plr):
+            self.tanks.append(Tank(i, self.input, pos[i], Vec2(15, 20)))
+
+    def update(self):
+        for tank in self.tanks:
+            tank.update()
+
+        for tank in self.tanks:
+            self.maze.check_collision(tank)
+
+        for i, tank in enumerate(self.tanks):
+            for j in range(i+1, len(self.tanks)):
+                tank.check_collision(self.tanks[j])
+
+    def display(self):
+        self.maze.display()
+
+        for tank in self.tanks:
+            tank.display()
+            # tank.display_debug()
