@@ -81,23 +81,74 @@ class Vec2:
 class Collider:
     TYPE_STATIC = 0
     TYPE_DYNAMIC = 1
+    TYPE_TRIGGER = 2
     def __init__(self, center, rotation, tp):
         self.c = center
         self.rot = rotation
         self.type = tp
+        self.callback = None
+
+    def set_callback(self, callback):
+        if self.type != TYPE_TRIGGER:
+            raise Exception("Callback can be updated only to a trigger.")
+        self.callback = callback
+
+    def check_collision(self, other):
+        if self.type == Collider.TYPE_STATIC:
+            raise Exception("Collision cannot be checked on a static object.")
+        self.prepare_for_collision()
+        other.prepare_for_collision()
+        col_status, mpv = check_collision(self, other)
+        if col_status:
+            if other.type == Collider.TYPE_STATIC:
+                self.c += mpv
+            else:
+                self.c += 0.5 * mpv
+                other.c -= 0.5 * mpv
+                
+        return col_status
 
 
-# class CircleCollider(Collider):
-#     def __init__(self, center, radius, rotation = 0, tp = Collider.TYPE_STATIC):
-#         Collider.__init__(self, center, rotation, tp)
-#         self.radius = radius
+class PolygonCollider(Collider):
+    def __init__(self, points):
+        self.points = points
 
-#     def projection_range(self, ortho):
-#         center_projection_magnitude = self.c.dot(ortho)
-#         mn = center_projection_magnitude - self.radius
-#         mx = center_projection_magnitude + self.radius
 
-class RectCollider(Collider):
+    def get_axes(self):
+        return polygon_edges(self.points)
+
+    def recalculate_points(self):
+        pass
+
+    def prepare_for_collision(self):
+        self.recalculate_points()
+
+    def projection_range(self, ortho):
+        return polygon_projection_range(ortho, self.points)
+
+
+    def display_debug(self, clr = color(0, 255, 0) ):
+        noFill()
+        stroke(clr)
+        self.recalculate_points()
+        draw_polygon(self.points)
+
+
+## approximation of a circle with a polygon
+class CirclePolyCollider(PolygonCollider):
+    def __init__(self, center, radius, num_vert, rotation = 0, tp = Collider.TYPE_STATIC):
+        Collider.__init__(self, center, rotation, tp)
+        self.radius = radius
+        self.num_vert = num_vert
+        self.recalculate_points()
+
+    def recalculate_points(self):
+        top = self.c + Vec2(0, -self.radius)
+        self.points = [top.rotate(self.c, PI*2/self.num_vert*i) for i in range(self.num_vert)]
+
+
+
+class RectCollider(PolygonCollider):
     def __init__(self, center, half_w, half_h, rotation = 0, tp = Collider.TYPE_STATIC):
         # center
         self.c = center
@@ -118,10 +169,6 @@ class RectCollider(Collider):
         self.points = list(map(lambda v: v.rotate(self.c, self.rot), self.points))
 
 
-    # def to_poly(self):
-    #     self.recalculate_points()
-    #     return self.points
-
     def get_axes(self):
         axes = []
         for i in range(2):
@@ -130,40 +177,14 @@ class RectCollider(Collider):
         return axes
 
 
-    def projection_range(self, ortho):
-        return polygon_projection_range(ortho, self.points)
-
-
-    def check_collision(self, other):
-        if self.type == Collider.TYPE_STATIC:
-            raise Exception("Collision cannot be checked on a static object.")
-        self.recalculate_points()
-        other.recalculate_points()
-        col, mpv = check_collision(self, other)
-        if col:
-            if other.type == Collider.TYPE_STATIC:
-                self.c += mpv
-            else:
-                self.c += 0.5 * mpv
-                other.c -= 0.5 * mpv
-                
-        return col
-
-
-    def display_debug(self, clr = color(0, 255, 0) ):
-        noFill()
-        stroke(clr)
-        self.recalculate_points()
-        n = len(self.points)
-        for i in range(n):
-            u = self.points[i]
-            v = self.points[(i+1)%n]
-            line(u.x, u.y, v.x, v.y)
-
-
-
-
 ### Convex polygon collision/intersection
+
+def draw_polygon(points):
+    n = len(points)
+    for i in range(n):
+        u = points[i]
+        v = points[(i+1)%n]
+        line(u.x, u.y, v.x, v.y)
 
 def polygon_edges(points):
     edges = []

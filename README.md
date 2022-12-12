@@ -19,6 +19,7 @@
 - [ ] In the `Maze` class, rows and columns should be inverted.
 - [ ] If one tank pushes another one to a wall, the other tank will slightly overlap with the wall.
 - [ ] Adjust tank's rotation when it pushes against the wall.
+- [ ] Do not apply a push vector after checking the bullet collision.
 
 ## Notes
 - Right now, the tanks cannot be spawned in the same cell. It might be better to have that possibility.

@@ -1,4 +1,4 @@
-from collision import Collider, RectCollider, Vec2
+from collision import Collider, RectCollider, CirclePolyCollider, Vec2
 from animation import Animation, StateMachine, Animator
 from maze import Maze
 from input import InputHandler
@@ -47,6 +47,7 @@ class Tank(RectCollider):
     def __init__(self, plr_id, input_handler, center, half_size, inst_bullet):
         rot = random.uniform(0, 2*PI)
         RectCollider.__init__(self, center, half_size.x, half_size.y, rot, Collider.TYPE_DYNAMIC)
+        # CirclePolyCollider.__init__(self, center, half_size.x, 6, 0, Collider.TYPE_DYNAMIC)
         self.input_handler = input_handler
         self.img = loadImage("./images/Hull_06.png")
         self.plr_id = plr_id
@@ -103,6 +104,8 @@ class Tank(RectCollider):
             #     image(track, x-3, y-3, self.hs.x/2.0, self.hs.y*2 + 6)
             # self.animator.display(Vec2(x+50, y+50))
             # rect(x, y, *(self.hs*2).as_tuple())
+
+        # self.display_debug()
 
 
 class Game:
