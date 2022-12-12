@@ -4,6 +4,7 @@ from collision import RectCollider, Vec2
 # DCS = 4      # desired component size
 WALL_SZ = 6
 CELL_SZ = 100
+WALL_COLOR = color(50)
 
 dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
@@ -14,7 +15,7 @@ class Wall(RectCollider):
 
 
     def display(self):
-        fill(0)
+        fill(WALL_COLOR)
         noStroke()
         rect(self.c.x - self.hs.x, self.c.y - self.hs.y, self.hs.x * 2, self.hs.y * 2)
         # self.display_debug(self.debug_color)

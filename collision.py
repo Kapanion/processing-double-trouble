@@ -54,6 +54,9 @@ class Vec2:
     
     def dot(self, other):
         return self.x * other.x + self.y * other.y
+
+    def orthogonal(self):
+        return Vec2(-self.y, self.x)
     
     
     def sqr_magnitude(self):
@@ -78,12 +81,21 @@ class Vec2:
 class Collider:
     TYPE_STATIC = 0
     TYPE_DYNAMIC = 1
-    def __init__(self, center, rotation):
+    def __init__(self, center, rotation, tp):
         self.c = center
         self.rot = rotation
+        self.type = tp
 
 
+# class CircleCollider(Collider):
+#     def __init__(self, center, radius, rotation = 0, tp = Collider.TYPE_STATIC):
+#         Collider.__init__(self, center, rotation, tp)
+#         self.radius = radius
 
+#     def projection_range(self, ortho):
+#         center_projection_magnitude = self.c.dot(ortho)
+#         mn = center_projection_magnitude - self.radius
+#         mx = center_projection_magnitude + self.radius
 
 class RectCollider(Collider):
     def __init__(self, center, half_w, half_h, rotation = 0, tp = Collider.TYPE_STATIC):
@@ -106,15 +118,28 @@ class RectCollider(Collider):
         self.points = list(map(lambda v: v.rotate(self.c, self.rot), self.points))
 
 
-    def to_poly(self):
-        self.recalculate_points()
-        return self.points
+    # def to_poly(self):
+    #     self.recalculate_points()
+    #     return self.points
+
+    def get_axes(self):
+        axes = []
+        for i in range(2):
+            axes.append(self.points[i+1] - self.points[i])
+
+        return axes
+
+
+    def projection_range(self, ortho):
+        return polygon_projection_range(ortho, self.points)
 
 
     def check_collision(self, other):
         if self.type == Collider.TYPE_STATIC:
             raise Exception("Collision cannot be checked on a static object.")
-        col, mpv = check_collision(self.to_poly(), other.to_poly())
+        self.recalculate_points()
+        other.recalculate_points()
+        col, mpv = check_collision(self, other)
         if col:
             if other.type == Collider.TYPE_STATIC:
                 self.c += mpv
@@ -136,19 +161,17 @@ class RectCollider(Collider):
             line(u.x, u.y, v.x, v.y)
 
 
+
+
 ### Convex polygon collision/intersection
 
-def edges_of(poly):
+def polygon_edges(points):
     edges = []
-    n = len(poly)
+    n = len(points)
     for i in range(n):
-        edges.append(poly[(i+1)%n] - poly[i])
+        edges.append(points[(i+1)%n] - points[i])
 
     return edges
-
-
-def orthogonal(v):
-    return Vec2(-v.y, v.x)
 
 
 def centers_displacement(poly1, poly2):
@@ -157,33 +180,24 @@ def centers_displacement(poly1, poly2):
     return c2 - c1
 
 
-def separating_axis(ortho, poly1, poly2):
-    min1, max1 = float('+inf'), float('-inf')
-    min2, max2 = float('+inf'), float('-inf')
-
-    if DEBUG_PRINT: print("Checking axis {}".format(ortho))
-    for v in poly1:
+def polygon_projection_range(ortho, points):
+    mn, mx = float('+inf'), float('-inf')
+    for v in points:
         projection_magnitude = v.dot(ortho)
-        if DEBUG_PRINT:
-            print("Poly1: point {}, proj {}".format(v, projection_magnitude))
 
-        min1 = min(min1, projection_magnitude)
-        max1 = max(max1, projection_magnitude)
+        mn = min(mn, projection_magnitude)
+        mx = max(mx, projection_magnitude)
 
-    for v in poly2:
-        projection_magnitude = v.dot(ortho)
-        if DEBUG_PRINT:
-            print("Poly2: point {}, proj {}".format(v, projection_magnitude))
+    return mn, mx
 
-        min2 = min(min2, projection_magnitude)
-        max2 = max(max2, projection_magnitude)
+
+def separating_axis(ortho, col1, col2):
+    min1, max1 = col1.projection_range(ortho)
+    min2, max2 = col2.projection_range(ortho)
 
     if max1 < min2 or max2 < min1:
         # no overlap
         return True, None
-
-    if DEBUG_PRINT:
-        print("{}: {} {} {} {}".format(frameCount, min1, max1, min2, max2))
 
     d = min(max1 - min2, max2 - min1)
     sqr_mag = ortho.sqr_magnitude()
@@ -191,31 +205,22 @@ def separating_axis(ortho, poly1, poly2):
     return False, pv
 
 
-def check_collision(poly1, poly2):
-    # poly1 = [np.array(v, 'float64') for v in poly1]
-    # poly2 = [np.array(v, 'float64') for v in poly2]
-    poly1 = list(map(lambda v: Vec2(float(v.x), float(v.y)), poly1))
-    poly2 = list(map(lambda v: Vec2(float(v.x), float(v.y)), poly2))
-
-    edges = edges_of(poly1) + edges_of(poly2)
-    orthos = map(orthogonal, edges)
+def check_collision(col1, col2):
+    axes = col1.get_axes() + col2.get_axes()
+    orthos = map(Vec2.orthogonal, axes)
 
     push_vectors = []
     for ortho in orthos:
-        sep, pv = separating_axis(ortho, poly1, poly2)
+        sep, pv = separating_axis(ortho, col1, col2)
 
         if sep:
             return False, None
 
         push_vectors.append(pv)
 
-    if DEBUG_PRINT:
-        print("{}: rect1: {}".format(frameCount, ",".join(map(str, poly1))))
-        print("{}: rect2: {}".format(frameCount, ",".join(map(str, poly2))))
-
-    mpv = min(push_vectors, key=(lambda v: v.sqr_magnitude()))
+    mpv = min(push_vectors, key=Vec2.sqr_magnitude)
     
-    d = centers_displacement(poly1, poly2) # direction from p1 to p2
+    d = centers_displacement(col1.points, col2.points) # direction from p1 to p2
     if d.dot(mpv) > 0: # if it's the same direction, then invert
         mpv = -mpv
 

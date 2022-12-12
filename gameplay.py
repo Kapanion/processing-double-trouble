@@ -7,17 +7,25 @@ import random
 
 TANK_SPEED = 2
 TANK_ROT_SPEED = 0.06
+BULLET_COL = color(0)
 
 
 class Bullet:
     def __init__(self, pos, rot):
         self.pos = pos
+        self.radius = 3
+
+    def display(self):
+        fill(BULLET_COL)
+        circle(self.pos.x, self.pos.y, self.radius)
+
 
 
 
 class Turret:
-    def __init__(self):
+    def __init__(self, inst_bullet):
         self.img = loadImage("./images/Gun_05.png")
+        self.inst_bullet = inst_bullet
         self.w = 15
         self.h = 35
 
@@ -36,14 +44,15 @@ class Turret:
 
 
 class Tank(RectCollider):
-    def __init__(self, plr_id, input_handler, center, half_size):
+    def __init__(self, plr_id, input_handler, center, half_size, inst_bullet):
         rot = random.uniform(0, 2*PI)
         RectCollider.__init__(self, center, half_size.x, half_size.y, rot, Collider.TYPE_DYNAMIC)
         self.input_handler = input_handler
         self.img = loadImage("./images/Hull_06.png")
         self.plr_id = plr_id
         self.is_moving = True
-        self.turret = Turret()
+        self.turret = Turret(inst_bullet)
+        # self.inst_bullet = inst_bullet
 
         track1 = loadImage("./images/Track_1_A.png")
         track2 = loadImage("./images/Track_1_B.png")
@@ -101,9 +110,13 @@ class Game:
         self.maze = Maze(5,5)
         self.input = InputHandler()
         self.tanks = []
+        self.bullets = []
         pos = self.maze.rand_pos_in_biggest_component(num_plr)
         for i in range(num_plr):
-            self.tanks.append(Tank(i, self.input, pos[i], Vec2(15, 20)))
+            self.tanks.append(Tank(i, self.input, pos[i], Vec2(15, 20), self.instantiate_bullet))
+
+    def instantiate_bullet(self, bullet):
+        self.bullets.append(bullet)
 
     def update(self):
         for tank in self.tanks:
