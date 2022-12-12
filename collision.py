@@ -114,8 +114,13 @@ class PolygonCollider(Collider):
         self.points = points
 
 
-    def get_axes(self):
-        return polygon_edges(self.points)
+    def get_axes(self):          
+        axes = []
+        n = len(points)
+        for i in range(n):
+            axes.append(points[(i+1)%n] - points[i])
+
+        return axes
 
     def recalculate_points(self):
         pass
@@ -123,15 +128,26 @@ class PolygonCollider(Collider):
     def prepare_for_collision(self):
         self.recalculate_points()
 
-    def projection_range(self, ortho):
-        return polygon_projection_range(ortho, self.points)
+    def projection_range(self, ortho):        
+        mn, mx = float('+inf'), float('-inf')
+        for v in self.points:
+            projection_magnitude = v.dot(ortho)
+
+            mn = min(mn, projection_magnitude)
+            mx = max(mx, projection_magnitude)
+
+        return mn, mx
 
 
     def display_debug(self, clr = color(0, 255, 0) ):
         noFill()
         stroke(clr)
         self.recalculate_points()
-        draw_polygon(self.points)
+        n = len(self.points)
+        for i in range(n):
+            u = self.points[i]
+            v = self.points[(i+1)%n]
+            line(u.x, u.y, v.x, v.y)
 
 
 ## approximation of a circle with a polygon
@@ -179,37 +195,10 @@ class RectCollider(PolygonCollider):
 
 ### Convex polygon collision/intersection
 
-def draw_polygon(points):
-    n = len(points)
-    for i in range(n):
-        u = points[i]
-        v = points[(i+1)%n]
-        line(u.x, u.y, v.x, v.y)
-
-def polygon_edges(points):
-    edges = []
-    n = len(points)
-    for i in range(n):
-        edges.append(points[(i+1)%n] - points[i])
-
-    return edges
-
-
 def centers_displacement(poly1, poly2):
     c1 = sum(poly1, Vec2(0.0, 0.0)) / float(len(poly1))
     c2 = sum(poly2, Vec2(0.0, 0.0)) / float(len(poly2))
     return c2 - c1
-
-
-def polygon_projection_range(ortho, points):
-    mn, mx = float('+inf'), float('-inf')
-    for v in points:
-        projection_magnitude = v.dot(ortho)
-
-        mn = min(mn, projection_magnitude)
-        mx = max(mx, projection_magnitude)
-
-    return mn, mx
 
 
 def separating_axis(ortho, col1, col2):
