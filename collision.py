@@ -75,12 +75,20 @@ class Vec2:
         return rotated + origin
 
 
-class RectCollider:
+class Collider:
     TYPE_STATIC = 0
     TYPE_DYNAMIC = 1
-    def __init__(self, center_x, center_y, half_w, half_h, rotation = 0, tp = TYPE_STATIC):
+    def __init__(self, center, rotation):
+        self.c = center
+        self.rot = rotation
+
+
+
+
+class RectCollider(Collider):
+    def __init__(self, center, half_w, half_h, rotation = 0, tp = Collider.TYPE_STATIC):
         # center
-        self.c = Vec2(center_x, center_y)
+        self.c = center
         # half size
         self.hs = Vec2(half_w, half_h)
         self.rot = rotation
@@ -98,14 +106,17 @@ class RectCollider:
         self.points = list(map(lambda v: v.rotate(self.c, self.rot), self.points))
 
 
-    def check_collision(self, other):
-        if self.type == RectCollider.TYPE_STATIC:
-            raise Exception("Collision cannot be checked on a static object.")
+    def to_poly(self):
         self.recalculate_points()
-        other.recalculate_points()
-        col, mpv = check_collision(self.points, other.points)
+        return self.points
+
+
+    def check_collision(self, other):
+        if self.type == Collider.TYPE_STATIC:
+            raise Exception("Collision cannot be checked on a static object.")
+        col, mpv = check_collision(self.to_poly(), other.to_poly())
         if col:
-            if other.type == RectCollider.TYPE_STATIC:
+            if other.type == Collider.TYPE_STATIC:
                 self.c += mpv
             else:
                 self.c += 0.5 * mpv

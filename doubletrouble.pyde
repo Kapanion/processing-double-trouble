@@ -1,7 +1,4 @@
-from maze import Maze
-import collision as cl
-from gameplay import Tank, Game
-from input import InputHandler
+from gameplay import Game
              
 def setup():
     global game
@@ -9,8 +6,9 @@ def setup():
     game = Game(2)
 
 def draw():
-    global game
     # print("-------------- FRAME {} -----------------".format(frameCount))
+    
+    global game
     background(255)
     game.update()
     game.display()

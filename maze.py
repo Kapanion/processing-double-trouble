@@ -9,7 +9,7 @@ dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
 class Wall(RectCollider):
     def __init__(self, x, y, w, h):
-        RectCollider.__init__(self, x + w/2.0, y + h/2.0, w/2.0, h/2.0)
+        RectCollider.__init__(self, Vec2(x + w/2.0, y + h/2.0), w/2.0, h/2.0)
         self.debug_color = color(0,255,0)
 
 

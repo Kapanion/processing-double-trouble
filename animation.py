@@ -1,5 +1,5 @@
 class Animation:
-    def __init__(self, frames, frame_rate, name):
+    def __init__(self, frames, frame_rate, name = None):
         self.name = name
         self.frames = frames
         self.frame_rate = frame_rate
@@ -85,4 +85,3 @@ class Animator:
     def display(self, pos):
         if self.current_animation is not None:
             self.current_animation.display(pos)
-
