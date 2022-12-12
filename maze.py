@@ -115,8 +115,6 @@ class Maze:
 
 
 
-
-
     def rand_pos_in_biggest_component(self, n = 1):
         coords = []
         while len(coords) < n:
@@ -135,11 +133,15 @@ class Maze:
         # the object to an approppriate location
         r, c = (target.c / int(CELL_SZ)).to_int().as_tuple()
         col = False
+        pv = Vec2() * 0.0
         for wall in self.cell_walls[r][c]:
             wall.debug_color = color(255,0,0)
-            if target.check_collision(wall):
+            st, mpv = target.check_collision(wall)
+            if st:
                 col = True
-        return col
+                pv += mpv
+        
+        return col, pv
 
 
     def display(self):

@@ -36,11 +36,9 @@ class Vec2:
             return self.y
         else:
             raise IndexError("not valid index key '{}'".format(key))
-
     
     def __str__(self):
         return "({},{})".format(self.x, self.y)
-
 
 
     def to_float(self):
@@ -51,19 +49,21 @@ class Vec2:
 
     def as_tuple(self):
         return (self.x, self.y)
-    
-    def dot(self, other):
-        return self.x * other.x + self.y * other.y
 
     def orthogonal(self):
         return Vec2(-self.y, self.x)
     
+    def normalized(self):
+        return self / self.magnitude()
     
     def sqr_magnitude(self):
         return self.x ** 2 + self.y ** 2
     
     def magnitude(self):
         return self.sqr_magnitude() ** 0.5
+    
+    def dot(self, other):
+        return self.x * other.x + self.y * other.y
     
     def sqr_distance(self, other):
         return (self.x - other.x)**2 + (self.y - other.y)**2
@@ -99,14 +99,14 @@ class Collider:
         self.prepare_for_collision()
         other.prepare_for_collision()
         col_status, mpv = check_collision(self, other)
-        if col_status:
+        if col_status and self.type != Collider.TYPE_TRIGGER:
             if other.type == Collider.TYPE_STATIC:
                 self.c += mpv
             else:
                 self.c += 0.5 * mpv
                 other.c -= 0.5 * mpv
                 
-        return col_status
+        return col_status, mpv
 
 
 class PolygonCollider(Collider):
@@ -116,9 +116,9 @@ class PolygonCollider(Collider):
 
     def get_axes(self):          
         axes = []
-        n = len(points)
+        n = len(self.points)
         for i in range(n):
-            axes.append(points[(i+1)%n] - points[i])
+            axes.append(self.points[(i+1)%n] - self.points[i])
 
         return axes
 
@@ -152,8 +152,8 @@ class PolygonCollider(Collider):
 
 ## approximation of a circle with a polygon
 class CirclePolyCollider(PolygonCollider):
-    def __init__(self, center, radius, num_vert, rotation = 0, tp = Collider.TYPE_STATIC):
-        Collider.__init__(self, center, rotation, tp)
+    def __init__(self, center, radius, num_vert, tp = Collider.TYPE_STATIC):
+        Collider.__init__(self, center, 0, tp)
         self.radius = radius
         self.num_vert = num_vert
         self.recalculate_points()
@@ -161,7 +161,6 @@ class CirclePolyCollider(PolygonCollider):
     def recalculate_points(self):
         top = self.c + Vec2(0, -self.radius)
         self.points = [top.rotate(self.c, PI*2/self.num_vert*i) for i in range(self.num_vert)]
-
 
 
 class RectCollider(PolygonCollider):

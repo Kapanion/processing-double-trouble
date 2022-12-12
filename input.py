@@ -30,7 +30,6 @@ class InputHandler():
             self.keys_pressed[0][input_map[key]] = True
 
 
-
     def key_released(self):
         if key == CODED:
             self.keys_pressed[1][keyCode] = False
@@ -39,4 +38,3 @@ class InputHandler():
                 return
             self.keys_pressed[0][input_map[key]] = False
     
-

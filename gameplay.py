@@ -8,18 +8,27 @@ import random
 TANK_SPEED = 2
 TANK_ROT_SPEED = 0.06
 BULLET_COL = color(0)
+BULLET_SPEED = 12.0/6.0
 
 
-class Bullet:
-    def __init__(self, pos, rot):
-        self.pos = pos
-        self.radius = 3
+class Bullet(CirclePolyCollider):
+    def __init__(self, pos, v):
+        self.diameter = 8
+        CirclePolyCollider.__init__(self, pos, self.diameter / 2.0, 8, Collider.TYPE_TRIGGER)
+        self.v = v
+        # self.v = (self.pos + Vec2(0.0, 1.0)).rotate(self.pos, rot).normalized() * BULLET_SPEED
+        # print "{} {}  {}".format(self.pos, rot, self.v)
+
+    def update(self):
+        self.c += self.v
+        pass
+
+    def bounce(self, mx, my):
+        self.v = Vec2(self.v.x * mx, self.v.y * my)
 
     def display(self):
         fill(BULLET_COL)
-        circle(self.pos.x, self.pos.y, self.radius)
-
-
+        circle(self.c.x, self.c.y, self.diameter)
 
 
 class Turret:
@@ -30,8 +39,9 @@ class Turret:
         self.h = 35
 
 
-    def shoot(self):
-        pass
+    def shoot(self, pos, rot):
+        bullet = Bullet(pos, rot)
+        self.inst_bullet(bullet)
 
 
     def display(self, pos):
@@ -67,8 +77,15 @@ class Tank(RectCollider):
         self.animator = anim
 
 
+    def shoot(self):
+        pos = (self.c + Vec2(0.0, -self.hs.y)).rotate(self.c, self.rot)
+        # print self.c, pos
+        self.turret.shoot(pos, (pos-self.c).normalized() * BULLET_SPEED)
+
 
     def update(self):
+        if frameCount == 200:
+            self.shoot()
         # print(self.input_handler.check(self.plr_id, UP))
         mov = False
         rot = False
@@ -118,6 +135,7 @@ class Game:
         for i in range(num_plr):
             self.tanks.append(Tank(i, self.input, pos[i], Vec2(15, 20), self.instantiate_bullet))
 
+
     def instantiate_bullet(self, bullet):
         self.bullets.append(bullet)
 
@@ -125,8 +143,17 @@ class Game:
         for tank in self.tanks:
             tank.update()
 
+        for bullet in self.bullets:
+            bullet.update()
+
         for tank in self.tanks:
             self.maze.check_collision(tank)
+
+        for bullet in self.bullets:
+            status, mpv = self.maze.check_collision(bullet)
+            if status:
+                mx, my = (-1, 1) if mpv.x != 0 else (1, -1)
+                bullet.bounce(mx, my)
 
         for i, tank in enumerate(self.tanks):
             for j in range(i+1, len(self.tanks)):
@@ -138,3 +165,6 @@ class Game:
         for tank in self.tanks:
             tank.display()
             # tank.display_debug()
+
+        for bullet in self.bullets:
+            bullet.display()
