@@ -6,11 +6,20 @@ class Animation:
         self.frame_time = 1000 / frame_rate
         self.current_frame = 0
         self.last_frame_update = millis()
+        self.loop = True
+        self.paused = False
     
     
     def update(self):
+        if self.paused: return
         if millis() >= self.last_frame_update + self.frame_time:
-            self.current_frame = (self.current_frame + 1) % len(self.frames)
+            if self.current_frame < len(self.frames) - 1:
+                self.current_frame += 1
+                # self.current_frame = (self.current_frame + 1) % len(self.frames)
+            elif self.loop:
+                self.current_frame = 0
+            else:
+                self.paused = True
             self.last_frame_update = millis()
             
     
@@ -24,6 +33,12 @@ class Animation:
     
     def first_frame(self):
         return self.current_frame == 0
+
+    def no_loop(self):
+        self.loop = False
+
+    def finished(self):
+        return self.loop and self.current_frame == len(self.frames)-1
 
 
 class StateMachine:

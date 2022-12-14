@@ -1,7 +1,6 @@
 import random
 from collision import RectCollider, Vec2
 
-# DCS = 4      # desired component size
 WALL_SZ = 6
 CELL_SZ = 100
 WALL_COLOR = color(50)
