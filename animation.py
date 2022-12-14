@@ -27,8 +27,8 @@ class Animation:
         return self.frames[self.current_frame]
 
 
-    def display(self, pos):
-        image(self.frames[self.current_frame], pos.x, pos.y)
+    def display(self, pos, sz):
+        image(self.frames[self.current_frame], pos.x, pos.y, sz.x, sz.y)
     
     
     def first_frame(self):
@@ -38,7 +38,7 @@ class Animation:
         self.loop = False
 
     def finished(self):
-        return self.loop and self.current_frame == len(self.frames)-1
+        return not self.loop and self.current_frame == len(self.frames)-1
 
 
 class StateMachine:

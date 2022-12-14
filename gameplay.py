@@ -62,7 +62,7 @@ class Turret:
 
 
 class Tank(RectCollider):
-    def __init__(self, plr_id, input_handler, center, half_size, inst_bullet):
+    def __init__(self, plr_id, input_handler, center, half_size, inst_bullet, destroy_callback):
         rot = random.uniform(0, 2*PI)
         RectCollider.__init__(self, center, half_size.x, half_size.y, rot, Collider.TYPE_DYNAMIC)
         # CirclePolyCollider.__init__(self, center, half_size.x, 6, 0, Collider.TYPE_DYNAMIC)
@@ -72,6 +72,7 @@ class Tank(RectCollider):
         self.is_moving = True
         self.turret = Turret(inst_bullet)
         self.destroyed = False
+        self.destroy_callback = destroy_callback
         # self.inst_bullet = inst_bullet
 
         ## animation for tracks:
@@ -87,7 +88,7 @@ class Tank(RectCollider):
 
 
         explosion_frames = [loadImage("./images/effects/Explosion_{}.png".format(chr(i))) for i in range(ord('A'), ord('H')+1)]
-        anim_explode = Animation(explosion_frames, 8, "explosion")
+        anim_explode = Animation(explosion_frames, 20, "explosion")
         anim_explode.no_loop()
         # anim_idle = Animation([self.img], 1, "idle")
         self.anim_explode = anim_explode
@@ -111,7 +112,12 @@ class Tank(RectCollider):
 
 
     def update(self):
-        if self.destroyed: return
+        if self.destroyed:
+            self.anim_explode.update()
+            if self.anim_explode.finished():
+                self.destroy_callback(self)
+            return
+
         mov = False
         rot = False
         if self.input_handler.check(self.plr_id, LEFT):
@@ -141,7 +147,7 @@ class Tank(RectCollider):
             translate(*(-self.c))
             imageMode(CENTER)
             if self.destroyed:
-                pass
+                self.anim_explode.display(self.c, Vec2() * self.hs.y * 5)
             else:
                 image(self.img, self.c.x, self.c.y, self.hs.x*2+2, self.hs.y*2+1)
                 self.turret.display(self.c)
@@ -164,11 +170,15 @@ class Game:
         self.bullets = []
         pos = self.maze.rand_pos_in_biggest_component(num_plr)
         for i in range(num_plr):
-            self.tanks.append(Tank(i, self.input, pos[i], Vec2(15, 20), self.instantiate_bullet))
+            self.tanks.append(Tank(i, self.input, pos[i], Vec2(15, 20), self.instantiate_bullet, self.remove_tank))
 
 
     def instantiate_bullet(self, bullet):
         self.bullets.append(bullet)
+
+    def remove_tank(self, tank):
+        print("Removing {}".format(tank))
+        self.tanks.remove(tank)
 
     def update(self):
         for tank in self.tanks:
