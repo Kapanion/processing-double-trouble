@@ -16,6 +16,8 @@
 - [x] Player scores.
 - [x] Limit the number of bullets.
 - [x] Bullet should not destroy the shooter for a short amount of time after being fired.
+- [x] Menu
+- [ ] Leaderboard
 
 ## Bugs
 - [x] Optimize checking for collisions with the maze.

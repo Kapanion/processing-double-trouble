@@ -331,3 +331,62 @@ class Game:
     def display(self):
         self.match.display()
         self.display_score()
+
+
+class Menu:
+    def __init__(self, gm):
+        self.bg_img = loadImage('./images/bgimage.png')
+        self.play_img = loadImage('./images/play.png')
+        self.leaderboard_img = loadImage('./images/leaderboard.png')
+        self.on_play_pressed = gm.start_game
+
+
+    def update(self):
+        pass
+
+    
+    def display(self):        
+        image(self.bg_img, 0,0)
+        image(self.play_img, 360,300)
+        image(self.leaderboard_img, 360,500)
+
+    def mouse_clicked(self):
+        if 360 < mouseX < 360 + 550 and 300 < mouseY < 450:
+            self.on_play_pressed()
+        elif 360 < mouseX < 360 + 550 and 500 < mouseY < 650:
+            print ("Clicked Leaderboard")
+
+
+class GameManager:
+    MENU = 0
+    GAME = 1
+    LEADERBOARD = 2
+
+    def __init__(self):
+        self.open_menu()
+
+    def start_game(self):
+        self.state = GameManager.GAME
+        self.entity = Game(2)
+
+    def open_menu(self):
+        self.state = GameManager.MENU
+        self.entity = Menu(self)
+
+    def update(self):
+        self.entity.update()
+
+    def display(self):
+        self.entity.display()
+
+    def key_pressed(self):
+        if self.state == GameManager.GAME:
+            self.entity.input().key_pressed()
+
+    def key_released(self):
+        if self.state == GameManager.GAME:
+            self.entity.input().key_released()
+
+    def mouse_clicked(self):
+        if self.state == GameManager.MENU:
+            self.entity.mouse_clicked()

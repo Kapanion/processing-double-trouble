@@ -1,9 +1,9 @@
-from gameplay import Game
+from gameplay import GameManager
              
 def setup():
     global game
     size(1280, 720)
-    game = Game(2)
+    game = GameManager()
 
 def draw():
     # print("-------------- FRAME {} -----------------".format(frameCount))
@@ -15,8 +15,12 @@ def draw():
 
 def keyPressed():
     global game
-    game.input().key_pressed()
+    game.key_pressed()
 
 def keyReleased():
     global game
-    game.input().key_released()
+    game.key_released()
+
+def mouseClicked():
+    global game
+    game.mouse_clicked()
