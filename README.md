@@ -10,7 +10,7 @@
 - [x] Shooting bullets.
 - [x] Tanks destroying each other.
 - [x] Tank explosion animation.
-- [ ] Adjust the maze for different screen sizes.
+- [x] Adjust the maze for different screen sizes.
 - [ ] Wining & losing the game.
 - [ ] Player scores.
 - [ ] Different colors of the tank for different players.

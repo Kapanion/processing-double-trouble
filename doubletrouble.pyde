@@ -2,7 +2,7 @@ from gameplay import Game
              
 def setup():
     global game
-    size(505, 505)
+    size(1280, 720)
     game = Game(2)
 
 def draw():
@@ -15,8 +15,8 @@ def draw():
 
 def keyPressed():
     global game
-    game.input.key_pressed()
+    game.input().key_pressed()
 
 def keyReleased():
     global game
-    game.input.key_released()
+    game.input().key_released()

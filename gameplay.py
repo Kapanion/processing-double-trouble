@@ -1,6 +1,6 @@
 from collision import Collider, RectCollider, CirclePolyCollider, Vec2
 from animation import Animation, StateMachine, Animator
-from maze import Maze
+from maze import Maze, CELL_SZ
 from input import InputHandler, SHOOT
 
 import random
@@ -11,6 +11,8 @@ BULLET_COLOR = color(0)
 BULLET_SPEED = 13.5/6.0
 BULLET_LIFETIME = 3000 #milliseconds
 BULLET_DIAMETER = 8
+
+SECONDS_AFTER_DEATH = 2.5
 
 class Bullet(CirclePolyCollider):
     def __init__(self, pos, v):
@@ -162,15 +164,18 @@ class Tank(RectCollider):
         # self.display_debug()
 
 
-class Game:
-    def __init__(self, num_plr = 2):
-        self.maze = Maze(5,5)
+class Match:
+    def __init__(self, num_plr = 2, maze_sz = Vec2(8, 5)):
+        self.maze = Maze(*maze_sz)
         self.input = InputHandler()
         self.tanks = []
         self.bullets = []
         pos = self.maze.rand_pos_in_biggest_component(num_plr)
         for i in range(num_plr):
             self.tanks.append(Tank(i, self.input, pos[i], Vec2(15, 20), self.instantiate_bullet, self.remove_tank))
+
+        self.over_time = -1
+        self.over = False
 
 
     def instantiate_bullet(self, bullet):
@@ -179,8 +184,21 @@ class Game:
     def remove_tank(self, tank):
         print("Removing {}".format(tank))
         self.tanks.remove(tank)
+        if len(self.tanks) < 2:
+            self.over_time = millis() + SECONDS_AFTER_DEATH * 1000
+
+    def winner_id(self):
+        if not self.over:
+            raise Exception("winner_id() cannot be called if the game is not over yet.")
+        if len(self.tanks) != 0:
+            return self.tanks[0].plr_id
+        return None
 
     def update(self):
+        if self.over_time != -1 and millis() >= self.over_time:
+            self.over = True
+            return
+
         for tank in self.tanks:
             tank.update()
 
@@ -214,11 +232,44 @@ class Game:
                 tank.check_collision(self.tanks[j])
 
     def display(self):
-        self.maze.display()
+        with pushMatrix():
+            offs = Vec2(width - CELL_SZ * self.maze.rows, height - CELL_SZ * self.maze.cols) / 2.0
+            translate(*offs)
+            
+            self.maze.display()
+    
+            for tank in self.tanks:
+                tank.display()
+                # tank.display_debug()
+    
+            for bullet in self.bullets:
+                bullet.display()
+                
+            translate(*(-offs))
 
-        for tank in self.tanks:
-            tank.display()
-            # tank.display_debug()
 
-        for bullet in self.bullets:
-            bullet.display()
+class Game:
+    def __init__(self, num_plr):
+        self.num_plr = num_plr
+        self.match = Match(num_plr)
+        self.score = [0] * num_plr
+
+
+    def input(self):
+        return self.match.input
+
+
+    def update(self):
+        self.match.update()
+        if self.match.over:
+            winner_id = self.match.winner_id()
+            if winner_id is not None:
+                self.score[winner_id] += 1
+
+            mz_sz = Vec2(random.randint(3, 8), random.randint(3,5))
+            self.match = Match(self.num_plr, mz_sz)
+            print(self.score)
+
+
+    def display(self):
+        self.match.display()
