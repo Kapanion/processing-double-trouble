@@ -15,6 +15,7 @@
 - [x] Wining & losing the game.
 - [x] Player scores.
 - [ ] Limit the number of bullets.
+- [ ] Bullet should not destroy the shooter for a short amount of time after being fired.
 
 ## Bugs
 - [x] Optimize checking for collisions with the maze.
@@ -24,6 +25,9 @@
 - [ ] Bullets bounce off weirdly when hitting corners. 
 - [ ] If one player wins but destoryes themselves right before the game restarts, their score might still increase.
 - [ ] If a tank us pushing back to the wall and fires a bullet, it will be destroyed.
+- [ ] Player 1 can push explosion of player 2.
+- [ ] Player 2 is drawn over player 1's explosion.
+
 
 ### Fix these if there's enough time:
 - [x] Do not apply a push vector after checking the bullet collision.

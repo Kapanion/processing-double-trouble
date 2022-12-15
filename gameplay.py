@@ -9,16 +9,16 @@ import random
 TANK_SPEED = 2
 TANK_ROT_SPEED = 0.06
 BULLET_COLOR = color(0)
-BULLET_SPEED = 13.5/6.0
-BULLET_LIFETIME = 3000 #milliseconds
+BULLET_SPEED = 14/6.0
+BULLET_LIFETIME = 3.0 # seconds
 BULLET_DIAMETER = 8
 
-SECONDS_AFTER_DEATH = 2.5
+SECONDS_AFTER_DEATH = 2.0
 
 class Bullet(CirclePolyCollider):
     def __init__(self, pos, v):
         self.diameter = BULLET_DIAMETER
-        self.death_time = millis() + BULLET_LIFETIME
+        self.death_time = millis() + BULLET_LIFETIME * 1000
         self.spawntime = millis()
         CirclePolyCollider.__init__(self, pos, self.diameter / 2.0, 8, Collider.TYPE_TRIGGER)
         self.v = v
@@ -187,7 +187,7 @@ class Match:
         self.bullets.append(bullet)
 
     def remove_tank(self, tank):
-        print("Removing {}".format(tank))
+        # print("Removing {}".format(tank))
         self.tanks.remove(tank)
         if len(self.tanks) < 2:
             self.over_time = millis() + SECONDS_AFTER_DEATH * 1000
@@ -277,7 +277,6 @@ class Game:
                 self.score[winner_id] += 1
 
             self.new_match()
-            print(self.score)
 
 
     def display_score(self):
@@ -288,7 +287,8 @@ class Game:
         for plr in range(self.num_plr):
             pos = Vec2(width/2 - dx / 2 * (self.num_plr-1) + plr * dx, height - 40)
             pos -= Vec2(25, 0)
-            image(self.assets.hulls[plr], pos.x, pos.y, 45, 60)
+            image(self.assets.hulls[plr], pos.x, pos.y, *Vec2(30, 40) * 1.5)
+            image(self.assets.turrets[plr], pos.x, pos.y-5, *Vec2(15, 35) * 1.5)
             pos += 2*Vec2(25, 0)
             text(self.score[plr], *pos)
         imageMode(CORNER)

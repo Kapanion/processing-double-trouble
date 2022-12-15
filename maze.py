@@ -131,6 +131,8 @@ class Maze:
         # all collisions have to be checked to move
         # the object to an approppriate location
         r, c = (target.c / int(CELL_SZ)).to_int().as_tuple()
+        r = 0 if r < 0 else self.rows-1 if r >= self.rows else r
+        c = 0 if c < 0 else self.cols-1 if c >= self.cols else c
         col = False
         pv = Vec2() * 0.0
         for wall in self.cell_walls[r][c]:
