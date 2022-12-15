@@ -257,9 +257,13 @@ class Game:
     def __init__(self, num_plr):
         self.assets = AssetManager()
         self.num_plr = num_plr
-        self.match = Match(self.assets, num_plr)
+        self.new_match()
         self.score = [0] * num_plr
 
+
+    def new_match(self):
+        mz_sz = Vec2(random.randint(3, 8), random.randint(3,5))
+        self.match = Match(self.assets, self.num_plr, mz_sz)
 
     def input(self):
         return self.match.input
@@ -272,10 +276,24 @@ class Game:
             if winner_id is not None:
                 self.score[winner_id] += 1
 
-            mz_sz = Vec2(random.randint(3, 8), random.randint(3,5))
-            self.match = Match(self.assets, self.num_plr, mz_sz)
+            self.new_match()
             print(self.score)
+
+
+    def display_score(self):
+        textSize(40)
+        textAlign(CENTER, CENTER)
+        imageMode(CENTER)
+        dx = 200
+        for plr in range(self.num_plr):
+            pos = Vec2(width/2 - dx / 2 * (self.num_plr-1) + plr * dx, height - 40)
+            pos -= Vec2(25, 0)
+            image(self.assets.hulls[plr], pos.x, pos.y, 45, 60)
+            pos += 2*Vec2(25, 0)
+            text(self.score[plr], *pos)
+        imageMode(CORNER)
 
 
     def display(self):
         self.match.display()
+        self.display_score()

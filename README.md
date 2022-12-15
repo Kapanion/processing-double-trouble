@@ -11,9 +11,10 @@
 - [x] Tanks destroying each other.
 - [x] Tank explosion animation.
 - [x] Adjust the maze for different screen sizes.
-- [ ] Wining & losing the game.
-- [ ] Player scores.
-- [ ] Different colors of the tank for different players.
+- [x] Different colors of the tank for different players.
+- [x] Wining & losing the game.
+- [x] Player scores.
+- [ ] Limit the number of bullets.
 
 ## Bugs
 - [x] Optimize checking for collisions with the maze.
@@ -21,6 +22,8 @@
 - [x] Wall's collider is displayed even though the `display_debug` method is not called. _Fix: the walls were just being drawn with stroke on._
 - [ ] Many bullets can be fired by holding down the shoot button.
 - [ ] Bullets bounce off weirdly when hitting corners. 
+- [ ] If one player wins but destoryes themselves right before the game restarts, their score might still increase.
+- [ ] If a tank us pushing back to the wall and fires a bullet, it will be destroyed.
 
 ### Fix these if there's enough time:
 - [x] Do not apply a push vector after checking the bullet collision.
