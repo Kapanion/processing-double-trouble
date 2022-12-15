@@ -1,5 +1,6 @@
 from collision import Collider, RectCollider, CirclePolyCollider, Vec2
 from animation import Animation, StateMachine, Animator
+from assets import AssetManager
 from maze import Maze, CELL_SZ
 from input import InputHandler, SHOOT
 
@@ -44,8 +45,8 @@ class Bullet(CirclePolyCollider):
 
 
 class Turret:
-    def __init__(self, inst_bullet):
-        self.img = loadImage("./images/Gun_05.png")
+    def __init__(self, inst_bullet, img):
+        self.img = img
         self.inst_bullet = inst_bullet
         self.w = 15
         self.h = 35
@@ -64,15 +65,15 @@ class Turret:
 
 
 class Tank(RectCollider):
-    def __init__(self, plr_id, input_handler, center, half_size, inst_bullet, destroy_callback):
+    def __init__(self, assets, plr_id, input_handler, center, half_size, inst_bullet, destroy_callback):
         rot = random.uniform(0, 2*PI)
         RectCollider.__init__(self, center, half_size.x, half_size.y, rot, Collider.TYPE_DYNAMIC)
         # CirclePolyCollider.__init__(self, center, half_size.x, 6, 0, Collider.TYPE_DYNAMIC)
         self.input_handler = input_handler
-        self.img = loadImage("./images/Hull_06.png")
+        self.img = assets.hulls[plr_id]
         self.plr_id = plr_id
         self.is_moving = True
-        self.turret = Turret(inst_bullet)
+        self.turret = Turret(inst_bullet, assets.turrets[plr_id])
         self.destroyed = False
         self.destroy_callback = destroy_callback
         # self.inst_bullet = inst_bullet
@@ -89,8 +90,12 @@ class Tank(RectCollider):
         # self.animator_track = anim
 
 
-        explosion_frames = [loadImage("./images/effects/Explosion_{}.png".format(chr(i))) for i in range(ord('A'), ord('H')+1)]
-        anim_explode = Animation(explosion_frames, 20, "explosion")
+        # explosion_frames = [loadImage("./images/effects/Explosion_{}.png".format(chr(i))) for i in range(ord('A'), ord('H')+1)]
+        # anim_explode = Animation(explosion_frames, "explosion", 20)
+        
+        anim_explode = AssetManager.load_animation("./images/effects/Explosion_{}.png", 8, "explosion")
+        anim_explode.set_fps(20);
+
         anim_explode.no_loop()
         # anim_idle = Animation([self.img], 1, "idle")
         self.anim_explode = anim_explode
@@ -165,14 +170,14 @@ class Tank(RectCollider):
 
 
 class Match:
-    def __init__(self, num_plr = 2, maze_sz = Vec2(8, 5)):
+    def __init__(self, assets, num_plr = 2, maze_sz = Vec2(8, 5)):
         self.maze = Maze(*maze_sz)
         self.input = InputHandler()
         self.tanks = []
         self.bullets = []
         pos = self.maze.rand_pos_in_biggest_component(num_plr)
         for i in range(num_plr):
-            self.tanks.append(Tank(i, self.input, pos[i], Vec2(15, 20), self.instantiate_bullet, self.remove_tank))
+            self.tanks.append(Tank(assets, i, self.input, pos[i], Vec2(15, 20), self.instantiate_bullet, self.remove_tank))
 
         self.over_time = -1
         self.over = False
@@ -250,8 +255,9 @@ class Match:
 
 class Game:
     def __init__(self, num_plr):
+        self.assets = AssetManager()
         self.num_plr = num_plr
-        self.match = Match(num_plr)
+        self.match = Match(self.assets, num_plr)
         self.score = [0] * num_plr
 
 
@@ -267,7 +273,7 @@ class Game:
                 self.score[winner_id] += 1
 
             mz_sz = Vec2(random.randint(3, 8), random.randint(3,5))
-            self.match = Match(self.num_plr, mz_sz)
+            self.match = Match(self.assets, self.num_plr, mz_sz)
             print(self.score)
 
 

@@ -1,5 +1,5 @@
 class Animation:
-    def __init__(self, frames, frame_rate, name = None):
+    def __init__(self, frames, name = None, frame_rate = 8):
         self.name = name
         self.frames = frames
         self.frame_rate = frame_rate
@@ -36,6 +36,9 @@ class Animation:
 
     def no_loop(self):
         self.loop = False
+    
+    def set_fps(self, new_fps):
+        self.frame_rate = new_fps
 
     def finished(self):
         return not self.loop and self.current_frame == len(self.frames)-1
