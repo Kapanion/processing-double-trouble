@@ -14,17 +14,17 @@
 - [x] Different colors of the tank for different players.
 - [x] Wining & losing the game.
 - [x] Player scores.
-- [ ] Limit the number of bullets.
-- [ ] Bullet should not destroy the shooter for a short amount of time after being fired.
+- [x] Limit the number of bullets.
+- [x] Bullet should not destroy the shooter for a short amount of time after being fired.
 
 ## Bugs
 - [x] Optimize checking for collisions with the maze.
 - [x] Fix weird behavior when the tanks collide (one tank has priority).
 - [x] Wall's collider is displayed even though the `display_debug` method is not called. _Fix: the walls were just being drawn with stroke on._
-- [ ] Many bullets can be fired by holding down the shoot button.
+- [x] If a tank us pushing back to the wall and fires a bullet, it will be destroyed.
+- [x] Many bullets can be fired by holding down the shoot button.
 - [ ] Bullets bounce off weirdly when hitting corners. 
 - [ ] If one player wins but destoryes themselves right before the game restarts, their score might still increase.
-- [ ] If a tank us pushing back to the wall and fires a bullet, it will be destroyed.
 - [ ] Player 1 can push explosion of player 2.
 - [ ] Player 2 is drawn over player 1's explosion.
 

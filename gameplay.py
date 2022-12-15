@@ -9,28 +9,29 @@ import random
 TANK_SPEED = 2
 TANK_ROT_SPEED = 0.06
 BULLET_COLOR = color(0)
-BULLET_SPEED = 14/6.0
-BULLET_LIFETIME = 3.0 # seconds
+BULLET_SPEED = 16/6.0
+BULLET_LIFETIME = 10.0 # seconds
 BULLET_DIAMETER = 8
+BULLET_IMMUNITY = 0.1 # seconds
+
+TURRET_RELOAD_TIME = 5.0 # seconds
+TURRET_SHOT_DELAY = 0.15 # seconds
+TURRET_AMMO = 5
 
 SECONDS_AFTER_DEATH = 2.0
 
 class Bullet(CirclePolyCollider):
-    def __init__(self, pos, v):
+    def __init__(self, plr_id, pos, v):
         self.diameter = BULLET_DIAMETER
         self.death_time = millis() + BULLET_LIFETIME * 1000
         self.spawntime = millis()
         CirclePolyCollider.__init__(self, pos, self.diameter / 2.0, 8, Collider.TYPE_TRIGGER)
         self.v = v
+        self.plr_id = plr_id
+        self.outside_tank_collider = False
         # self.v = (self.pos + Vec2(0.0, 1.0)).rotate(self.pos, rot).normalized() * BULLET_SPEED
         # print "{} {}  {}".format(self.pos, rot, self.v)
 
-    # Returns false if bullet should be destroyed
-    def update(self):
-        if millis() >= self.death_time:
-            return False
-        self.c += self.v
-        return True
 
     def destroy(self):
         self.death_time = 0
@@ -39,23 +40,50 @@ class Bullet(CirclePolyCollider):
     def bounce(self, mx, my):
         self.v = Vec2(self.v.x * mx, self.v.y * my)
 
+    def can_damage_owner(self):
+        return self.outside_tank_collider \
+                or millis() >= self.spawntime + BULLET_IMMUNITY * 1000
+
+    # Returns false if bullet should be destroyed
+    def update(self):
+        if millis() >= self.death_time:
+            return False
+        self.c += self.v
+        return True
+
     def display(self):
         fill(BULLET_COLOR)
         circle(self.c.x, self.c.y, self.diameter)
 
 
 class Turret:
-    def __init__(self, inst_bullet, img):
+    def __init__(self, plr_id, inst_bullet, img):
         self.img = img
+        self.plr_id = plr_id
         self.inst_bullet = inst_bullet
+        self.reload()
+        self.last_shot = -10000
         self.w = 15
         self.h = 35
         self.visible = True
 
 
     def shoot(self, pos, rot):
-        bullet = Bullet(pos, rot)
+        if self.ammo < 1 \
+                or millis() < self.last_shot + TURRET_SHOT_DELAY * 1000:
+            return
+        self.ammo -= 1
+        self.last_shot = millis()
+        bullet = Bullet(self.plr_id, pos, rot)
         self.inst_bullet(bullet)
+
+    def reload(self):
+        self.ammo = TURRET_AMMO
+        self.next_reload = millis() + TURRET_RELOAD_TIME * 1000
+
+    def update(self):
+        if self.ammo < TURRET_AMMO and millis() >= self.next_reload:
+            self.reload()
 
 
     def display(self, pos):
@@ -73,7 +101,7 @@ class Tank(RectCollider):
         self.img = assets.hulls[plr_id]
         self.plr_id = plr_id
         self.is_moving = True
-        self.turret = Turret(inst_bullet, assets.turrets[plr_id])
+        self.turret = Turret(self.plr_id, inst_bullet, assets.turrets[plr_id])
         self.destroyed = False
         self.destroy_callback = destroy_callback
         # self.inst_bullet = inst_bullet
@@ -103,7 +131,7 @@ class Tank(RectCollider):
 
     def shoot(self):
         if self.destroyed: return
-        y_offs = self.hs.y + 2
+        y_offs = self.hs.y
         pos = (self.c - Vec2(0.0, y_offs)).rotate(self.c, self.rot)
         # normalized form (magnitude is y_offs)
         norm = (pos-self.c) / y_offs
@@ -124,6 +152,8 @@ class Tank(RectCollider):
             if self.anim_explode.finished():
                 self.destroy_callback(self)
             return
+
+        self.turret.update()
 
         mov = False
         rot = False
@@ -224,6 +254,10 @@ class Match:
         for ti, tank in enumerate(self.tanks):
             for bi, bullet in enumerate(self.bullets):
                 st, _ = tank.check_collision(bullet)
+                if bullet.plr_id == tank.plr_id:
+                    if not st:
+                        bullet.outside_tank_collider = True
+                    if not bullet.can_damage_owner():                    continue
                 if st:
                     # one bullet cannot destroy two tanks on one frame
                     tank.destroy()
