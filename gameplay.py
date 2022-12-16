@@ -119,7 +119,7 @@ class Tank(RectCollider):
 
     def shoot(self):
         if self.destroyed: return
-        y_offs = self.hs.y
+        y_offs = self.hs.y - 2
         pos = (self.c - Vec2(0.0, y_offs)).rotate(self.c, self.rot)
         # normalized form (magnitude is y_offs)
         norm = (pos-self.c) / y_offs
@@ -239,20 +239,21 @@ class Match:
                 # mx, my = (-1, 1) if mpv.x != 0 else (1, -1)
                 bullet.bounce(mpv)
 
-        # for ti, tank in enumerate(self.tanks):
-        #     for bi, bullet in enumerate(self.bullets):
-        #         st, _ = tank.check_collision(bullet)
-        #         if bullet.plr_id == tank.plr_id:
-        #             if not st:
-        #                 bullet.outside_tank_collider = True
-        #             if not bullet.can_damage_owner():                    continue
-        #         if st:
-        #             # one bullet cannot destroy two tanks on one frame
-        #             tank.destroy()
-        #             bullet.destroy()
-        #             # self.tanks.pop(ti)
-        #             self.bullets.pop(bi)
-        #             break
+        for ti, tank in enumerate(self.tanks):
+            for bi, bullet in enumerate(self.bullets):
+                st, _ = tank.check_collision(bullet)
+                if bullet.plr_id == tank.plr_id:
+                    if not st:
+                        bullet.outside_tank_collider = True
+                    if not bullet.can_damage_owner():
+                        continue
+                if st:
+                    # one bullet cannot destroy two tanks on one frame
+                    tank.destroy()
+                    bullet.destroy()
+                    # self.tanks.pop(ti)
+                    self.bullets.pop(bi)
+                    break
 
         for i, tank in enumerate(self.tanks):
             for j in range(i+1, len(self.tanks)):

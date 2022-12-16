@@ -99,12 +99,15 @@ class Collider:
         self.prepare_for_collision()
         other.prepare_for_collision()
         col_status, mpv = check_collision(self, other)
-        if col_status and self.type != Collider.TYPE_TRIGGER:
+        if col_status and Collider.TYPE_TRIGGER not in [self.type, other.type]:
             if other.type == Collider.TYPE_STATIC:
                 self.c += mpv
             else:
                 self.c += 0.5 * mpv
                 other.c -= 0.5 * mpv
+
+        # self.prev_c = self.c
+        # other.prev_c = other.c
                 
         return col_status, mpv
 
@@ -175,13 +178,14 @@ class CirclePolyCollider(PolygonCollider):
 
 class RectCollider(PolygonCollider):
     def __init__(self, center, half_w, half_h, rotation = 0, tp = Collider.TYPE_STATIC):
-        # center
-        self.c = center
+        # # center
+        # self.c = center
+        # self.rot = rotation
+        # self.type = tp
+        Collider.__init__(self, center, rotation, tp)        
         # half size
         self.hs = Vec2(half_w, half_h)
-        self.rot = rotation
         self.recalculate_points()
-        self.type = tp
 
 
     def recalculate_points(self):
@@ -239,7 +243,7 @@ def check_collision(col1, col2):
 
     mpv = min(push_vectors, key=Vec2.sqr_magnitude)
     
-    d = centers_displacement(col1.points, col2.points) # direction from p1 to p2
+    d = centers_displacement(col1.points, col2.points)
     # d = col1.c - col2.c # this line breaks the game XDDD
     if d.dot(mpv) > 0: # if it's the same direction, then invert
         mpv = -mpv
