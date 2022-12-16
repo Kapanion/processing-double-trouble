@@ -12,8 +12,8 @@ input_map = [
         "a": LEFT,
         "D": RIGHT,
         "d": RIGHT,
-        "E": SHOOT,
-        "e": SHOOT,
+        "H": SHOOT,
+        "h": SHOOT,
     },
     { # plr 2
         " ": SHOOT,

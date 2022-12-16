@@ -25,7 +25,7 @@ class Bullet(CirclePolyCollider):
         self.diameter = BULLET_DIAMETER
         self.death_time = millis() + BULLET_LIFETIME * 1000
         self.spawntime = millis()
-        CirclePolyCollider.__init__(self, pos, self.diameter / 2.0, 8, Collider.TYPE_TRIGGER)
+        CirclePolyCollider.__init__(self, pos, self.diameter / 2.0, 16, Collider.TYPE_TRIGGER)
         self.v = v
         self.plr_id = plr_id
         self.outside_tank_collider = False
@@ -37,8 +37,11 @@ class Bullet(CirclePolyCollider):
         self.death_time = 0
         # the next update will destroy the bullet
 
-    def bounce(self, mx, my):
-        self.v = Vec2(self.v.x * mx, self.v.y * my)
+    def bounce(self, mpv):
+        # self.v = Vec2(self.v.x * mx, self.v.y * my)
+        n = mpv.normalized()
+        self.c += mpv
+        self.v = self.v - 2 * self.v.dot(n) * n
 
     def can_damage_owner(self):
         return self.outside_tank_collider \
@@ -106,21 +109,6 @@ class Tank(RectCollider):
         self.destroy_callback = destroy_callback
         # self.inst_bullet = inst_bullet
 
-        ## animation for tracks:
-        # track1 = loadImage("./images/Track_1_A.png")
-        # track2 = loadImage("./images/Track_1_B.png")
-        # anim_track_move = Animation([track1, track2], 8, "move")
-        # anim_track_idle = Animation([track1], 1, "idle")
-        # anim = Animator()
-        # anim.add_animation(anim_track_move).add_animation(anim_track_idle)
-        # anim.state_machine.add_transition(0, 1, lambda: not self.is_moving)
-        # anim.state_machine.add_transition(1, 0, lambda: self.is_moving)
-        # self.animator_track = anim
-
-
-        # explosion_frames = [loadImage("./images/effects/Explosion_{}.png".format(chr(i))) for i in range(ord('A'), ord('H')+1)]
-        # anim_explode = Animation(explosion_frames, "explosion", 20)
-        
         anim_explode = AssetManager.load_animation("./images/effects/Explosion_{}.png", 8, "explosion")
         anim_explode.set_fps(20);
 
@@ -248,23 +236,23 @@ class Match:
         for bullet in self.bullets:
             status, mpv = self.maze.check_collision(bullet)
             if status:
-                mx, my = (-1, 1) if mpv.x != 0 else (1, -1)
-                bullet.bounce(mx, my)
+                # mx, my = (-1, 1) if mpv.x != 0 else (1, -1)
+                bullet.bounce(mpv)
 
-        for ti, tank in enumerate(self.tanks):
-            for bi, bullet in enumerate(self.bullets):
-                st, _ = tank.check_collision(bullet)
-                if bullet.plr_id == tank.plr_id:
-                    if not st:
-                        bullet.outside_tank_collider = True
-                    if not bullet.can_damage_owner():                    continue
-                if st:
-                    # one bullet cannot destroy two tanks on one frame
-                    tank.destroy()
-                    bullet.destroy()
-                    # self.tanks.pop(ti)
-                    self.bullets.pop(bi)
-                    break
+        # for ti, tank in enumerate(self.tanks):
+        #     for bi, bullet in enumerate(self.bullets):
+        #         st, _ = tank.check_collision(bullet)
+        #         if bullet.plr_id == tank.plr_id:
+        #             if not st:
+        #                 bullet.outside_tank_collider = True
+        #             if not bullet.can_damage_owner():                    continue
+        #         if st:
+        #             # one bullet cannot destroy two tanks on one frame
+        #             tank.destroy()
+        #             bullet.destroy()
+        #             # self.tanks.pop(ti)
+        #             self.bullets.pop(bi)
+        #             break
 
         for i, tank in enumerate(self.tanks):
             for j in range(i+1, len(self.tanks)):

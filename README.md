@@ -29,16 +29,19 @@
 - [ ] If one player wins but destoryes themselves right before the game restarts, their score might still increase.
 - [ ] Player 1 can push explosion of player 2.
 - [ ] Player 2 is drawn over player 1's explosion.
+- [ ] It's possible to shoot bullets to the other side of a wall.
 
 
 ### Fix these if there's enough time:
 - [x] Do not apply a push vector after checking the bullet collision.
+- [x] Only use half the number of axes in `CirclePolyCollider` if its number of vertices is even.
 - [ ] Optimize bullet-to-tank collision.
 - [ ] In the `Maze` class, rows and columns should be inverted.
 - [ ] If one tank pushes another one to a wall, the other tank will slightly overlap with the wall.
 - [ ] Adjust tank's rotation when it pushes against the wall.
-- [ ] Only use half the number of axes in `CirclePolyCollider` if its number of vertices is even.
 - [ ] One bullet cannot destroy two tanks during the same frame.
+- [ ] A bullet may bounce off from a corner in a weird way (as if its going around the corner). 
 
 ## Notes
 - Right now, the tanks cannot be spawned in the same cell. It might be better to have that possibility.
+- A bullet may bounce off from a corner in a weird way (as if its going around the corner). The reason for this is that the MPV pushes the bullet on the other side of the corner, not taking into account where it comes from.

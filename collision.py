@@ -162,6 +162,16 @@ class CirclePolyCollider(PolygonCollider):
         top = self.c + Vec2(0, -self.radius)
         self.points = [top.rotate(self.c, PI*2/self.num_vert*i) for i in range(self.num_vert)]
 
+    def get_axes(self):
+        n = len(self.points)
+        if n % 2 == 1:
+            return PolygonCollider.get_axes(self)
+        axes = []
+        for i in range(n/2):
+            axes.append(self.points[i+1] - self.points[i])
+
+        return axes
+
 
 class RectCollider(PolygonCollider):
     def __init__(self, center, half_w, half_h, rotation = 0, tp = Collider.TYPE_STATIC):
@@ -230,6 +240,7 @@ def check_collision(col1, col2):
     mpv = min(push_vectors, key=Vec2.sqr_magnitude)
     
     d = centers_displacement(col1.points, col2.points) # direction from p1 to p2
+    # d = col1.c - col2.c # this line breaks the game XDDD
     if d.dot(mpv) > 0: # if it's the same direction, then invert
         mpv = -mpv
 
