@@ -23,7 +23,7 @@ class Scene:
 
 from gameplay import Game
 from collision import Vec2
-from ui import Button, BackButton
+from ui import Button, BackButton, InputField
 
 
 class Menu(Scene):
@@ -40,8 +40,42 @@ class Menu(Scene):
 
 
     def mouse_clicked(self):
-        self.button_play.check_click()
-        self.button_lbrd.check_click()
+        self.button_play.mouse_clicked()
+        self.button_lbrd.mouse_clicked()
+
+
+class PreGameScene(Scene):
+    def __init__(self, on_play, on_back, num_plr = 2):
+        self.button_back = BackButton(on_back)
+        self.button_play = Button(loadImage('./images/play.png'), on_play, Vec2(360, 450))
+        self.input_fields = []
+        for i in range(num_plr):
+            pos = Vec2(360, 200 + i * 100)
+            sz = Vec2(550, 80)
+            input_field = InputField(pos, sz)
+            self.input_fields.append(input_field)
+
+    def get_plr_names(self):
+        return [field.get_input() for field in self.input_fields]
+
+
+    def display(self):
+        self.button_play.display()
+        self.button_back.display()
+        for input_field in self.input_fields:
+            input_field.display()
+
+
+    def mouse_clicked(self):
+        self.button_play.mouse_clicked()
+        self.button_back.mouse_clicked()
+        for input_field in self.input_fields:
+            input_field.mouse_clicked()
+
+
+    def key_typed(self):
+        for input_field in self.input_fields:
+            input_field.key_typed()
 
 
 class Leaderboard(Scene):
@@ -57,7 +91,7 @@ class Leaderboard(Scene):
         
 
     def display(self):
-        x = 130
+        x = 400
         textSize(30)
         fill(0)
         for i, (name, score) in enumerate(self.data):
@@ -70,20 +104,30 @@ class Leaderboard(Scene):
 
 
     def mouse_clicked(self):
-        self.button_back.check_click()
+        self.button_back.mouse_clicked()
 
 
 class SceneManager:
-    def __init__(self):
+    def __init__(self, num_plr = 2):
         self.open_menu()
-
+        self.num_plr = num_plr
 
     def start_game(self):
-        self.scene = Game(2, self.open_menu)
+        names = []
+        if self.scene_is(PreGameScene):
+            names = self.scene.get_plr_names()
+        else:
+            names = ["Player {}".format(i+1) for i in range(self.num_plr)]
+
+        self.scene = Game(names, self.open_menu)
+
+
+    def pre_game(self):
+        self.scene = PreGameScene(self.start_game, self.open_menu, self.num_plr)
 
 
     def open_menu(self):
-        self.scene = Menu(self.start_game, self.open_lbrd)
+        self.scene = Menu(self.pre_game, self.open_lbrd)
 
 
     def open_lbrd(self):

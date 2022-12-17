@@ -23,11 +23,10 @@ def keyReleased():
     global scene_manager
     scene_manager.key_released()
 
+def keyTyped():
+    global scene_manager
+    scene_manager.key_typed()
+    
 def mouseClicked():
     global scene_manager
     scene_manager.mouse_clicked()
-
-def keyTyped():
-    global st
-    st += key
-    print(st)

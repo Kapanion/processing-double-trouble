@@ -206,11 +206,13 @@ class Match:
     def instantiate_bullet(self, bullet):
         self.bullets.append(bullet)
 
+
     def remove_tank(self, tank):
         # print("Removing {}".format(tank))
         self.tanks.remove(tank)
         if len(self.tanks) < 2:
             self.over_time = millis() + SECONDS_AFTER_DEATH * 1000
+
 
     def winner_id(self):
         if not self.over:
@@ -218,6 +220,7 @@ class Match:
         if len(self.tanks) != 0:
             return self.tanks[0].plr_id
         return None
+
 
     def update(self):
         if self.over_time != -1 and millis() >= self.over_time:
@@ -280,11 +283,13 @@ class Match:
 
 # this is also a scene
 class Game(Scene):
-    def __init__(self, num_plr, back_to_menu):
+    def __init__(self, plr_names, back_to_menu):
         self.assets = AssetManager()
-        self.num_plr = num_plr
+        self.plr_names = plr_names
+        self.num_plr = len(plr_names)
+        print(plr_names)
         self.new_match()
-        self.score = [0] * num_plr
+        self.score = [0] * self.num_plr
         self.button_back = BackButton(self.quit)
         self.back_to_menu = back_to_menu
 
@@ -340,4 +345,4 @@ class Game(Scene):
         self.input().key_released()
 
     def mouse_clicked(self):
-        self.button_back.check_click()
+        self.button_back.mouse_clicked()
