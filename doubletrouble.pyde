@@ -1,15 +1,19 @@
 from scenes import SceneManager
              
+add_library('minim')
+minim = Minim(this)
+
 def setup():
     global scene_manager
-    global st
-    st = ""
     size(1280, 720)
+    minim = Minim(this)
+    import ui
+    ui.set_minim(minim)
+    import gameplay
+    gameplay.set_minim(minim)
     scene_manager = SceneManager()
 
-def draw():
-    # print("-------------- FRAME {} -----------------".format(frameCount))
-    
+def draw():    
     global scene_manager
     background(255)
     scene_manager.update()

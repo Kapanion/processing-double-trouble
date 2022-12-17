@@ -123,9 +123,10 @@ class Leaderboard(Scene):
 
 
 class SceneManager:
-    def __init__(self, num_plr = 2):
+    def __init__(self, minim = None, num_plr = 2):
         self.open_menu()
         self.num_plr = num_plr
+        self.minim = minim
 
 
     def start_game(self):
@@ -135,7 +136,7 @@ class SceneManager:
         else:
             names = ["Player {}".format(i+1) for i in range(self.num_plr)]
 
-        self.scene = Game(names, self.open_menu)
+        self.scene = Game(names, self.open_menu, self.minim)
 
 
     def pre_game(self):

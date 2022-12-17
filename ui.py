@@ -2,6 +2,12 @@ from collision import Vec2
 
 UI_DEFAULT_COLOR = color(68)
 
+minim = None
+
+def set_minim(mnm):
+    global minim
+    minim = mnm
+
 class UIElement:
     def __init__(self, pos, sz):
         self.pos = pos
@@ -30,6 +36,7 @@ class Button(UIElement):
         UIElement.__init__(self, pos, sz)
         self.img = img
         self.on_pressed = on_pressed
+        self.sound = minim.loadFile("./sounds/click.wav")
 
     def display(self):
         image(self.img, self.pos.x, self.pos.y, self.sz.x, self.sz.y)
@@ -38,6 +45,8 @@ class Button(UIElement):
     def mouse_clicked(self):
         if self.check_mouse_overlap():
             self.on_pressed()
+            self.sound.rewind()
+            self.sound.play()
     
     @staticmethod
     def print_pressed():

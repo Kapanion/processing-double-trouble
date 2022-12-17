@@ -8,13 +8,19 @@ from ui import BackButton
 
 import random
 
+minim = None
+
+def set_minim(mnm):
+    global minim
+    minim = mnm
+
 TANK_SPEED = 2
 TANK_ROT_SPEED = 0.06
 BULLET_COLOR = color(0)
 BULLET_SPEED = 16/6.0
 BULLET_LIFETIME = 10.0 # seconds
 BULLET_DIAMETER = 8
-BULLET_IMMUNITY = 0.1 # seconds
+BULLET_IMMUNITY = 0.2 # seconds
 
 TURRET_RELOAD_TIME = 5.0 # seconds
 TURRET_SHOT_DELAY = 0.15 # seconds
@@ -31,6 +37,7 @@ class Bullet(CirclePolyCollider):
         self.v = v
         self.plr_id = plr_id
         self.outside_tank_collider = False
+        self.sound_bounce = minim.loadFile("./sounds/bounce.wav")
         # self.v = (self.pos + Vec2(0.0, 1.0)).rotate(self.pos, rot).normalized() * BULLET_SPEED
         # print "{} {}  {}".format(self.pos, rot, self.v)
 
@@ -44,6 +51,9 @@ class Bullet(CirclePolyCollider):
         n = mpv.normalized()
         self.c += mpv
         self.v = self.v - 2 * self.v.dot(n) * n
+        self.outside_tank_collider = True
+        self.sound_bounce.rewind()
+        self.sound_bounce.play()
 
     def can_damage_owner(self):
         return self.outside_tank_collider \
@@ -71,6 +81,8 @@ class Turret:
         self.w = 15
         self.h = 35
         self.visible = True
+        print(minim)
+        self.sound_shoot = minim.loadFile("./sounds/canonfire.wav")
 
 
     def shoot(self, pos, rot):
@@ -81,6 +93,8 @@ class Turret:
         self.last_shot = millis()
         bullet = Bullet(self.plr_id, pos, rot)
         self.inst_bullet(bullet)
+        self.sound_shoot.rewind()
+        self.sound_shoot.play()
 
     def reload(self):
         self.ammo = TURRET_AMMO
@@ -117,6 +131,7 @@ class Tank(RectCollider):
         anim_explode.no_loop()
         # anim_idle = Animation([self.img], 1, "idle")
         self.anim_explode = anim_explode
+        self.sound_explode = minim.loadFile("./sounds/explosion.wav")
 
 
     def shoot(self):
@@ -129,6 +144,8 @@ class Tank(RectCollider):
 
     def destroy(self):
         self.destroyed = True
+        self.sound_explode.rewind()
+        self.sound_explode.play()
 
 
     def check_collision(self, other):
@@ -283,7 +300,11 @@ class Match:
 
 # this is also a scene
 class Game(Scene):
-    def __init__(self, plr_names, back_to_menu):
+    def __init__(self, plr_names, back_to_menu, mnm = None):
+        print(mnm)
+        # global minim
+        # minim = mnm
+
         self.assets = AssetManager()
 
         for i,name in enumerate(plr_names):
