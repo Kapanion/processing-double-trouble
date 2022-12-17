@@ -1,5 +1,3 @@
-DEBUG_PRINT = False
-
 # Can also be used for storing a point
 class Vec2:
     def __init__(self, x = 1, y = 1):
@@ -112,6 +110,7 @@ class Collider:
         return col_status, mpv
 
 
+# this is used as an abstract class
 class PolygonCollider(Collider):
     def __init__(self, center, rotation, tp, points):
         self.points = points

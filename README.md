@@ -26,7 +26,7 @@
 - [x] If a tank us pushing back to the wall and fires a bullet, it will be destroyed.
 - [x] Many bullets can be fired by holding down the shoot button.
 - [x] It's possible to shoot bullets to the other side of a wall.
-- [ ] If one player wins but destoryes themselves right before the game restarts, their score might still increase.
+- [ ] If one player wins but destroys themselves right before the game restarts, their score might still increase.
 - [ ] Player 1 can push explosion of player 2.
 - [ ] Player 2 is drawn over player 1's explosion.
 

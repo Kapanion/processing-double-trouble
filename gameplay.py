@@ -1,8 +1,9 @@
 from collision import Collider, RectCollider, CirclePolyCollider, Vec2
-from animation import Animation, StateMachine, Animator
+from animation import Animation
 from assets import AssetManager
 from maze import Maze, CELL_SZ
 from input import InputHandler, SHOOT
+from scenes import Scene
 
 import random
 
@@ -261,7 +262,8 @@ class Match:
 
     def display(self):
         with pushMatrix():
-            offs = Vec2(width - CELL_SZ * self.maze.rows, height - CELL_SZ * self.maze.cols) / 2.0
+            offs = Vec2(width - CELL_SZ * self.maze.rows, \
+                    height - CELL_SZ * self.maze.cols - 100) / 2.0
             translate(*offs)
             
             self.maze.display()
@@ -275,8 +277,8 @@ class Match:
                 
             translate(*(-offs))
 
-
-class Game:
+# this is also a scene
+class Game(Scene):
     def __init__(self, num_plr):
         self.assets = AssetManager()
         self.num_plr = num_plr
@@ -307,8 +309,9 @@ class Game:
         textAlign(CENTER, CENTER)
         imageMode(CENTER)
         dx = 200
+        y = height - 100
         for plr in range(self.num_plr):
-            pos = Vec2(width/2 - dx / 2 * (self.num_plr-1) + plr * dx, height - 40)
+            pos = Vec2(width/2 - dx / 2 * (self.num_plr-1) + plr * dx, y)
             pos -= Vec2(25, 0)
             image(self.assets.hulls[plr], pos.x, pos.y, *Vec2(30, 40) * 1.5)
             image(self.assets.turrets[plr], pos.x, pos.y-5, *Vec2(15, 35) * 1.5)
@@ -322,53 +325,8 @@ class Game:
         self.display_score()
 
 
-class Menu:
-    def __init__(self, on_play_pressed):
-        self.bg_img = loadImage('./images/bgimage.png')
-        self.play_img = loadImage('./images/play.png')
-        self.leaderboard_img = loadImage('./images/leaderboard.png')
-        self.on_play_pressed = on_play_pressed
-
-    def update(self):
-        pass
-
-    
-    def display(self):        
-        image(self.bg_img, 0,0)
-        image(self.play_img, 360,300)
-        image(self.leaderboard_img, 360,500)
-
-    def mouse_clicked(self):
-        if 360 < mouseX < 360 + 550 and 300 < mouseY < 450:
-            self.on_play_pressed()
-        elif 360 < mouseX < 360 + 550 and 500 < mouseY < 650:
-            print ("Clicked Leaderboard")
-
-
-class SceneManager:
-    def __init__(self):
-        self.open_menu()
-
-    def start_game(self):
-        self.scene = Game(2)
-
-    def open_menu(self):
-        self.scene = Menu(self.start_game)
-
-    def update(self):
-        self.scene.update()
-
-    def display(self):
-        self.scene.display()
-
     def key_pressed(self):
-        if isinstance(self.scene, Game):
-            self.scene.input().key_pressed()
-
+        self.input().key_pressed()
+            
     def key_released(self):
-        if isinstance(self.scene, Game):
-            self.scene.input().key_released()
-
-    def mouse_clicked(self):
-        if isinstance(self.scene, Menu):
-            self.scene.mouse_clicked()
+        self.input().key_released()

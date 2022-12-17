@@ -1,4 +1,4 @@
-from gameplay import SceneManager
+from scenes import SceneManager
              
 def setup():
     global scene_manager
