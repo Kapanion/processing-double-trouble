@@ -19,7 +19,7 @@
 - [x] Menu.
 - [x] Input field UI.
 - [x] Leaderboard.
-- [ ] Sound design.
+- [x] Sound design.
 
 
 ## Bugs
