@@ -285,9 +285,13 @@ class Match:
 class Game(Scene):
     def __init__(self, plr_names, back_to_menu):
         self.assets = AssetManager()
+
+        for i,name in enumerate(plr_names):
+            if name == "":
+                plr_names[i] = "Unknown player"
         self.plr_names = plr_names
         self.num_plr = len(plr_names)
-        print(plr_names)
+
         self.new_match()
         self.score = [0] * self.num_plr
         self.button_back = BackButton(self.quit)

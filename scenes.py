@@ -102,14 +102,18 @@ class Leaderboard(Scene):
         
 
     def display(self):
-        x = 400
-        textSize(30)
+        textSize(100)
+        textAlign(CENTER, TOP)
+        x = width / 2
+        text("LEADERBOARD", x, 40)
+        textSize(40)
         fill(0)
+        y = 200
         for i, (name, score) in enumerate(self.data):
             textAlign(RIGHT, CENTER)
-            text(name, x - 5, i * 40 + 30)
+            text(name, x - 15, i * 40 + y)
             textAlign(LEFT, CENTER)
-            text(score, x + 5, i * 40 + 30)
+            text(score, x + 15, i * 40 + y)
 
         self.button_back.display()
 
@@ -122,6 +126,7 @@ class SceneManager:
     def __init__(self, num_plr = 2):
         self.open_menu()
         self.num_plr = num_plr
+
 
     def start_game(self):
         names = []

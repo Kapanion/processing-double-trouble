@@ -19,9 +19,8 @@
 - [x] Menu.
 - [x] Input field UI.
 - [x] Leaderboard.
-- [ ] Better visual for the leaderboard.
 - [ ] Sound design.
-- [ ] Automatically manage buttons from the `Scene` class.
+
 
 ## Bugs
 - [x] Optimize checking for collisions with the maze.
@@ -45,6 +44,7 @@
 - [ ] One bullet cannot destroy two tanks during the same frame.
 - [ ] A bullet may bounce off from a corner in a weird way (as if its going around the corner). 
 - [ ] `PolygonCollider` class doesn't have a proper constructor and proper attributes.
+- [ ] Automatically manage buttons from the `Scene` class.
 
 ## Notes
 - Right now, the tanks cannot be spawned in the same cell. It might be better to have that possibility.
