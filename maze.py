@@ -159,9 +159,3 @@ class Maze:
             res += '+' + "+".join('-' if self.maze[r][c][0] else ' ' \
                     for c in range(self.cols)) + '+\n'
         return res
-
-
-
-# maze = Maze(5, 5)
-# print(maze)
-# print(maze.maze)

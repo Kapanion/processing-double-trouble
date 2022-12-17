@@ -136,7 +136,7 @@ class SceneManager:
         else:
             names = ["Player {}".format(i+1) for i in range(self.num_plr)]
 
-        self.scene = Game(names, self.open_menu, self.minim)
+        self.scene = Game(names, self.open_menu)
 
 
     def pre_game(self):

@@ -38,8 +38,6 @@ class Bullet(CirclePolyCollider):
         self.plr_id = plr_id
         self.outside_tank_collider = False
         self.sound_bounce = minim.loadFile("./sounds/bounce.wav")
-        # self.v = (self.pos + Vec2(0.0, 1.0)).rotate(self.pos, rot).normalized() * BULLET_SPEED
-        # print "{} {}  {}".format(self.pos, rot, self.v)
 
 
     def destroy(self):
@@ -47,7 +45,6 @@ class Bullet(CirclePolyCollider):
         # the next update will destroy the bullet
 
     def bounce(self, mpv):
-        # self.v = Vec2(self.v.x * mx, self.v.y * my)
         n = mpv.normalized()
         self.c += mpv
         self.v = self.v - 2 * self.v.dot(n) * n
@@ -81,7 +78,6 @@ class Turret:
         self.w = 15
         self.h = 35
         self.visible = True
-        print(minim)
         self.sound_shoot = minim.loadFile("./sounds/canonfire.wav")
 
 
@@ -115,7 +111,6 @@ class Tank(RectCollider):
     def __init__(self, assets, plr_id, input_handler, center, half_size, inst_bullet, destroy_callback):
         rot = random.uniform(0, 2*PI)
         RectCollider.__init__(self, center, half_size.x, half_size.y, rot, Collider.TYPE_DYNAMIC)
-        # CirclePolyCollider.__init__(self, center, half_size.x, 6, 0, Collider.TYPE_DYNAMIC)
         self.input_handler = input_handler
         self.img = assets.hulls[plr_id]
         self.plr_id = plr_id
@@ -123,13 +118,11 @@ class Tank(RectCollider):
         self.turret = Turret(self.plr_id, inst_bullet, assets.turrets[plr_id])
         self.destroyed = False
         self.destroy_callback = destroy_callback
-        # self.inst_bullet = inst_bullet
 
         anim_explode = AssetManager.load_animation("./images/effects/Explosion_{}.png", 8, "explosion")
         anim_explode.set_fps(20);
 
         anim_explode.no_loop()
-        # anim_idle = Animation([self.img], 1, "idle")
         self.anim_explode = anim_explode
         self.sound_explode = minim.loadFile("./sounds/explosion.wav")
 
@@ -181,7 +174,6 @@ class Tank(RectCollider):
             self.input_handler.reset_action(self.plr_id, SHOOT)
 
         self.is_moving = rot or mov
-        # self.animator.update()
     
 
     def display(self):
@@ -196,13 +188,7 @@ class Tank(RectCollider):
                 image(self.img, self.c.x, self.c.y, self.hs.x*2+2, self.hs.y*2+1)
                 self.turret.display(self.c)
             imageMode(CORNER)
-
-            # track = self.animator.get_current_frame()
-            # if track is not None:
-            #     image(track, x-3, y-3, self.hs.x/2.0, self.hs.y*2 + 6)
-            # self.animator.display(Vec2(x+50, y+50))
-            # rect(x, y, *(self.hs*2).as_tuple())
-
+            
         # self.display_debug()
 
 
@@ -225,7 +211,6 @@ class Match:
 
 
     def remove_tank(self, tank):
-        # print("Removing {}".format(tank))
         self.tanks.remove(tank)
         if len(self.tanks) < 2:
             self.over_time = millis() + SECONDS_AFTER_DEATH * 1000
@@ -258,7 +243,6 @@ class Match:
         for bullet in self.bullets:
             status, mpv = self.maze.check_collision(bullet)
             if status:
-                # mx, my = (-1, 1) if mpv.x != 0 else (1, -1)
                 bullet.bounce(mpv)
 
         for ti, tank in enumerate(self.tanks):
@@ -300,11 +284,7 @@ class Match:
 
 # this is also a scene
 class Game(Scene):
-    def __init__(self, plr_names, back_to_menu, mnm = None):
-        print(mnm)
-        # global minim
-        # minim = mnm
-
+    def __init__(self, plr_names, back_to_menu):
         self.assets = AssetManager()
 
         for i,name in enumerate(plr_names):

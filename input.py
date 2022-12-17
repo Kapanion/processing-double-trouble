@@ -56,22 +56,4 @@ class InputHandler():
 
     def reset_action(self, plr_id, action):
         self.keys_pressed[plr_id][action] = False
-
-
-    # def key_pressed_old(self):
-    #     if key == CODED:
-    #         self.keys_pressed[1][keyCode] = True
-    #     else:
-    #         if key not in input_map[0]:
-    #             return
-    #         self.keys_pressed[0][input_map[0][key]] = True
-
-
-    # def key_released_old(self):
-    #     if key == CODED:
-    #         self.keys_pressed[1][keyCode] = False
-    #     else:
-    #         if key not in input_map:
-    #             return
-    #         self.keys_pressed[0][input_map[key]] = False
-    
+        

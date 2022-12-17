@@ -4,13 +4,15 @@ add_library('minim')
 minim = Minim(this)
 
 def setup():
-    global scene_manager
     size(1280, 720)
+    
     minim = Minim(this)
     import ui
     ui.set_minim(minim)
     import gameplay
     gameplay.set_minim(minim)
+    
+    global scene_manager
     scene_manager = SceneManager()
 
 def draw():    

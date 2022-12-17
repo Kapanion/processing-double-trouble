@@ -15,7 +15,6 @@ class Animation:
         if millis() >= self.last_frame_update + self.frame_time:
             if self.current_frame < len(self.frames) - 1:
                 self.current_frame += 1
-                # self.current_frame = (self.current_frame + 1) % len(self.frames)
             elif self.loop:
                 self.current_frame = 0
             else:

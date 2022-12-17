@@ -103,9 +103,6 @@ class Collider:
             else:
                 self.c += 0.5 * mpv
                 other.c -= 0.5 * mpv
-
-        # self.prev_c = self.c
-        # other.prev_c = other.c
                 
         return col_status, mpv
 
