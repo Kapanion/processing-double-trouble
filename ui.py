@@ -21,3 +21,7 @@ class Button:
     @staticmethod
     def print_pressed():
         print("Pressed.")
+
+class BackButton(Button):
+    def __init__(self, on_pressed):
+        Button.__init__(self, loadImage("./images/button_back.png"), on_pressed, Vec2()*20, Vec2()*50)

@@ -4,6 +4,7 @@ from assets import AssetManager
 from maze import Maze, CELL_SZ
 from input import InputHandler, SHOOT
 from scenes import Scene
+from ui import BackButton
 
 import random
 
@@ -279,11 +280,13 @@ class Match:
 
 # this is also a scene
 class Game(Scene):
-    def __init__(self, num_plr):
+    def __init__(self, num_plr, back_to_menu):
         self.assets = AssetManager()
         self.num_plr = num_plr
         self.new_match()
         self.score = [0] * num_plr
+        self.button_back = BackButton(self.quit)
+        self.back_to_menu = back_to_menu
 
 
     def new_match(self):
@@ -292,6 +295,10 @@ class Game(Scene):
 
     def input(self):
         return self.match.input
+
+    def quit(self):
+        print("End score: {}".format(" ".join(map(str,self.score))))
+        self.back_to_menu()
 
 
     def update(self):
@@ -323,6 +330,7 @@ class Game(Scene):
     def display(self):
         self.match.display()
         self.display_score()
+        self.button_back.display()
 
 
     def key_pressed(self):
@@ -330,3 +338,6 @@ class Game(Scene):
             
     def key_released(self):
         self.input().key_released()
+
+    def mouse_clicked(self):
+        self.button_back.check_click()

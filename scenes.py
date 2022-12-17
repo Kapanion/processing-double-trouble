@@ -23,7 +23,7 @@ class Scene:
 
 from gameplay import Game
 from collision import Vec2
-from ui import Button
+from ui import Button, BackButton
 
 
 class Menu(Scene):
@@ -45,7 +45,8 @@ class Menu(Scene):
 
 
 class Leaderboard(Scene):
-    def __init__(self):
+    def __init__(self, on_back):
+        self.button_back = BackButton(on_back)
         self.data = []
         with open("./leaderboard.csv", "r") as f:
             lines = f.readlines()
@@ -65,24 +66,33 @@ class Leaderboard(Scene):
             textAlign(LEFT, CENTER)
             text(score, x + 5, i * 40 + 30)
 
+        self.button_back.display()
+
+
+    def mouse_clicked(self):
+        self.button_back.check_click()
+
 
 class SceneManager:
     def __init__(self):
         self.open_menu()
-        # self.scene = Leaderboard()
 
 
     def start_game(self):
-        self.scene = Game(2)
+        self.scene = Game(2, self.open_menu)
 
 
     def open_menu(self):
-        self.scene = Menu(self.start_game)
+        self.scene = Menu(self.start_game, self.open_lbrd)
+
+
+    def open_lbrd(self):
+        self.scene = Leaderboard(self.open_menu)
 
 
     def scene_is(self, cls):
         return isinstance(self.scene, cls)
-        
+
 
     def update(self):
         self.scene.update()
