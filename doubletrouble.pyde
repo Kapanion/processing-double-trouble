@@ -1,26 +1,33 @@
-from gameplay import GameManager
+from gameplay import SceneManager
              
 def setup():
-    global game
+    global scene_manager
+    global st
+    st = ""
     size(1280, 720)
-    game = GameManager()
+    scene_manager = SceneManager()
 
 def draw():
     # print("-------------- FRAME {} -----------------".format(frameCount))
     
-    global game
+    global scene_manager
     background(255)
-    game.update()
-    game.display()
+    scene_manager.update()
+    scene_manager.display()
 
 def keyPressed():
-    global game
-    game.key_pressed()
+    global scene_manager
+    scene_manager.key_pressed()
 
 def keyReleased():
-    global game
-    game.key_released()
+    global scene_manager
+    scene_manager.key_released()
 
 def mouseClicked():
-    global game
-    game.mouse_clicked()
+    global scene_manager
+    scene_manager.mouse_clicked()
+
+def keyTyped():
+    global st
+    st += key
+    print(st)

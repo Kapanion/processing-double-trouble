@@ -113,7 +113,7 @@ class Collider:
 
 
 class PolygonCollider(Collider):
-    def __init__(self, points):
+    def __init__(self, center, rotation, tp, points):
         self.points = points
 
 
@@ -178,11 +178,7 @@ class CirclePolyCollider(PolygonCollider):
 
 class RectCollider(PolygonCollider):
     def __init__(self, center, half_w, half_h, rotation = 0, tp = Collider.TYPE_STATIC):
-        # # center
-        # self.c = center
-        # self.rot = rotation
-        # self.type = tp
-        Collider.__init__(self, center, rotation, tp)        
+        Collider.__init__(self, center, rotation, tp)
         # half size
         self.hs = Vec2(half_w, half_h)
         self.recalculate_points()

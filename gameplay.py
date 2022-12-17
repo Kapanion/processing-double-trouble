@@ -323,12 +323,11 @@ class Game:
 
 
 class Menu:
-    def __init__(self, gm):
+    def __init__(self, on_play_pressed):
         self.bg_img = loadImage('./images/bgimage.png')
         self.play_img = loadImage('./images/play.png')
         self.leaderboard_img = loadImage('./images/leaderboard.png')
-        self.on_play_pressed = gm.start_game
-
+        self.on_play_pressed = on_play_pressed
 
     def update(self):
         pass
@@ -346,36 +345,30 @@ class Menu:
             print ("Clicked Leaderboard")
 
 
-class GameManager:
-    MENU = 0
-    GAME = 1
-    LEADERBOARD = 2
-
+class SceneManager:
     def __init__(self):
         self.open_menu()
 
     def start_game(self):
-        self.state = GameManager.GAME
-        self.entity = Game(2)
+        self.scene = Game(2)
 
     def open_menu(self):
-        self.state = GameManager.MENU
-        self.entity = Menu(self)
+        self.scene = Menu(self.start_game)
 
     def update(self):
-        self.entity.update()
+        self.scene.update()
 
     def display(self):
-        self.entity.display()
+        self.scene.display()
 
     def key_pressed(self):
-        if self.state == GameManager.GAME:
-            self.entity.input().key_pressed()
+        if isinstance(self.scene, Game):
+            self.scene.input().key_pressed()
 
     def key_released(self):
-        if self.state == GameManager.GAME:
-            self.entity.input().key_released()
+        if isinstance(self.scene, Game):
+            self.scene.input().key_released()
 
     def mouse_clicked(self):
-        if self.state == GameManager.MENU:
-            self.entity.mouse_clicked()
+        if isinstance(self.scene, Menu):
+            self.scene.mouse_clicked()
