@@ -21,6 +21,22 @@ class Scene:
         pass
 
 
+def get_leaderboard_data(path = "./leaderboard.csv"):
+    data = []
+    with open(path, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            name, score = map(str.strip, line.split(','))
+            data.append((name, int(score)))
+
+    return data
+
+def set_leaderboard_data(data, path = "./leaderboard.csv"):
+    with open(path, "w") as f:
+        for line in data:
+            f.write(",".join(map(str, line)) + "\n")
+
+
 from gameplay import Game
 from collision import Vec2
 from ui import Button, BackButton, InputField
@@ -52,7 +68,8 @@ class PreGameScene(Scene):
         for i in range(num_plr):
             pos = Vec2(360, 200 + i * 100)
             sz = Vec2(550, 80)
-            input_field = InputField(pos, sz)
+            placeholder = "Enter player {} name...".format(i+1)
+            input_field = InputField(pos, sz, placeholder)
             self.input_fields.append(input_field)
 
     def get_plr_names(self):
@@ -81,13 +98,7 @@ class PreGameScene(Scene):
 class Leaderboard(Scene):
     def __init__(self, on_back):
         self.button_back = BackButton(on_back)
-        self.data = []
-        with open("./leaderboard.csv", "r") as f:
-            lines = f.readlines()
-            for line in lines:
-                name, score = map(str.strip, line.split(','))
-                self.data.append((name, score))
-        print(self.data)
+        self.data = get_leaderboard_data()
         
 
     def display(self):

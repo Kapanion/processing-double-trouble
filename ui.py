@@ -9,6 +9,7 @@ class UIElement:
 
     def display(self):
         fill(UI_DEFAULT_COLOR)
+        noStroke()
         rect(self.pos.x, self.pos.y, self.sz.x, self.sz.y)
 
     def check_mouse_overlap(self):
@@ -52,12 +53,13 @@ class InputField(UIElement):
     def __init__(self, pos, sz, placeholder = "Input text..."):
         UIElement.__init__(self, pos, sz)
         self.selected = False
+        self.text_length_limit = 15
         self.text = ""
         self.placeholder = placeholder
 
 
     def get_input(self):
-        return self.text if len(self.text) > 0 else self.placeholder
+        return self.text #if len(self.text) > 0 else self.placeholder
 
 
     def display(self):
@@ -83,4 +85,5 @@ class InputField(UIElement):
                 if len(self.text) > 0:
                     self.text = self.text[:-1]
             else:
-                self.text += key
+                if len(self.text) < self.text_length_limit - 1:
+                    self.text += key

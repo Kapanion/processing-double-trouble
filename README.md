@@ -17,8 +17,9 @@
 - [x] Limit the number of bullets.
 - [x] Bullet should not destroy the shooter for a short amount of time after being fired.
 - [x] Menu.
-- [X] Input field UI.
-- [ ] Leaderboard.
+- [x] Input field UI.
+- [x] Leaderboard.
+- [ ] Better visual for the leaderboard.
 - [ ] Sound design.
 - [ ] Automatically manage buttons from the `Scene` class.
 

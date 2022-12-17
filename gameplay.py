@@ -3,7 +3,7 @@ from animation import Animation
 from assets import AssetManager
 from maze import Maze, CELL_SZ
 from input import InputHandler, SHOOT
-from scenes import Scene
+from scenes import Scene, get_leaderboard_data, set_leaderboard_data
 from ui import BackButton
 
 import random
@@ -302,7 +302,10 @@ class Game(Scene):
         return self.match.input
 
     def quit(self):
-        print("End score: {}".format(" ".join(map(str,self.score))))
+        data = get_leaderboard_data()
+        data += zip(self.plr_names, self.score)
+        data = list(sorted(data, key = lambda a: a[1], reverse = True))[:10]
+        set_leaderboard_data(data)
         self.back_to_menu()
 
 
@@ -317,7 +320,6 @@ class Game(Scene):
 
 
     def display_score(self):
-        textSize(40)
         textAlign(CENTER, CENTER)
         imageMode(CENTER)
         dx = 200
@@ -327,7 +329,10 @@ class Game(Scene):
             pos -= Vec2(25, 0)
             image(self.assets.hulls[plr], pos.x, pos.y, *Vec2(30, 40) * 1.5)
             image(self.assets.turrets[plr], pos.x, pos.y-5, *Vec2(15, 35) * 1.5)
+            textSize(20)
+            text(self.plr_names[plr], pos.x, pos.y + 60)
             pos += 2*Vec2(25, 0)
+            textSize(40)
             text(self.score[plr], *pos)
         imageMode(CORNER)
 
